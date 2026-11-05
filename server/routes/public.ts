@@ -3,6 +3,16 @@ import { prisma } from '../lib/prisma.js'
 
 const router = Router()
 
+// GET /health (and /api/health when mounted on /api)
+router.get('/health', (_req: Request, res: Response) => {
+  res.json({
+    status: 'ok',
+    service: 'campuspulse-backend',
+    version: '1.0.0',
+    time: new Date().toISOString()
+  })
+})
+
 // GET /api/campus/blocks
 router.get('/campus/blocks', async (_req: Request, res: Response) => {
   const blocks = await prisma.block.findMany({

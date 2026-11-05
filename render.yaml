@@ -4,8 +4,8 @@ services:
     env: node
     plan: starter
     region: oregon
-    buildCommand: npm ci && npx prisma db push && npm run db:seed && npm run build
-    startCommand: npx tsx server/index.ts
+    buildCommand: npm install --include=dev && npx prisma generate
+    startCommand: npx prisma db push --skip-generate && npm run db:seed && npx tsx server/index.ts
     healthCheckPath: /api/health
     disk:
       name: campuspulse-data

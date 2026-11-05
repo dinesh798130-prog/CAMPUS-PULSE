@@ -110,13 +110,17 @@ app.get('/api/docs', (_req, res) => {
 })
 
 // 4. Health Check
-app.get('/api/health', (_req, res) => {
+const sendHealth = (_req: express.Request, res: express.Response) => {
   res.json({
     status: 'ok',
+    service: 'campuspulse-backend',
     version: '1.0.0',
     time: new Date().toISOString(),
   })
-})
+}
+
+app.get('/api/health', sendHealth)
+app.get('/health', sendHealth)
 
 // 5. Application Feature Routes
 app.use('/api/auth', authRoutes)

@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "tsx server/index.ts",
+    "start": "prisma db push --skip-generate && npm run db:seed && tsx server/index.ts",
     "dev": "concurrently \"vite\" \"tsx watch server/index.ts\"",
     "dev:frontend": "vite",
     "dev:backend": "tsx watch server/index.ts",
@@ -41,7 +41,9 @@
     "recharts": "^2.15.1",
     "tailwind-merge": "^3.0.1",
     "xlsx": "^0.18.5",
-    "zod": "^3.24.1"
+    "zod": "^3.24.1",
+    "prisma": "^6.4.1",
+    "tsx": "^4.19.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
