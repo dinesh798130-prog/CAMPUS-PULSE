@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Logo } from '../../components/common/Logo';
 import { useAuth } from '../../hooks/useAuth';
-import { Role } from '../../types';
-import { DEMO_CREDENTIALS } from '../../services/authService';
 import {
   Eye,
   EyeOff,
@@ -13,22 +11,24 @@ import {
   UserCheck,
   GraduationCap,
   ArrowLeft,
-  KeyRound,
-  Sparkles,
-  Info
+  AlertCircle
 } from 'lucide-react';
 
 interface RoleLoginPageProps {
   role: 'admin' | 'faculty' | 'student';
 }
 
+const DEFAULT_EMAILS: Record<string, string> = {
+  admin: 'admin@vignan.ac.in',
+  faculty: 'faculty@vignan.ac.in',
+  student: 'student@vignan.ac.in'
+};
+
 export const RoleLoginPage: React.FC<RoleLoginPageProps> = ({ role }) => {
-  const credentials = DEMO_CREDENTIALS[role];
-  const [email, setEmail] = useState(credentials.email);
-  const [password, setPassword] = useState(credentials.password);
+  const [email, setEmail] = useState(DEFAULT_EMAILS[role] || '');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
-  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const { login } = useAuth();
@@ -58,21 +58,19 @@ export const RoleLoginPage: React.FC<RoleLoginPageProps> = ({ role }) => {
     }
   }[role];
 
-  const Icon = roleMeta.icon;
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg(null);
     setLoading(true);
-    setTimeout(() => {
-      login(email, role);
-      setLoading(false);
-      navigate(roleMeta.redirect);
-    }, 400);
-  };
 
-  const handleFillDemo = () => {
-    setEmail(credentials.email);
-    setPassword(credentials.password);
+    try {
+      await login(email, password);
+      navigate(roleMeta.redirect);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Login failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -94,26 +92,13 @@ export const RoleLoginPage: React.FC<RoleLoginPageProps> = ({ role }) => {
           </p>
         </div>
 
-        {/* Demo Fast-Login Notice Banner */}
-        <div className="bg-amber-50 border border-amber-300 rounded-2xl p-4 text-xs text-amber-900 space-y-2 shadow-xs">
-          <div className="flex items-center justify-between">
-            <span className="font-bold flex items-center gap-1.5 text-amber-800">
-              <Sparkles className="w-3.5 h-3.5 text-amber-600" /> Hackathon Demo Credentials
-            </span>
-            <button
-              type="button"
-              onClick={handleFillDemo}
-              className="text-[11px] font-bold text-blue-700 hover:underline"
-            >
-              Autofill Form
-            </button>
+        {/* Error message */}
+        {errorMsg && (
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-xs text-red-700 flex items-center gap-2 shadow-xs">
+            <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+            <span>{errorMsg}</span>
           </div>
-          <p className="text-slate-600 text-[11px]">
-            Email: <code className="bg-amber-100 px-1 py-0.5 rounded font-mono font-bold text-slate-800">{credentials.email}</code>
-            <br />
-            Pass: <code className="bg-amber-100 px-1 py-0.5 rounded font-mono font-bold text-slate-800">{credentials.password}</code>
-          </p>
-        </div>
+        )}
 
         {/* Form Card */}
         <div className="bg-white rounded-3xl border border-slate-200 shadow-xl p-8">
@@ -121,7 +106,7 @@ export const RoleLoginPage: React.FC<RoleLoginPageProps> = ({ role }) => {
             {/* Email Field */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-                Institutional Email or Username
+                Institutional Email
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -148,110 +133,38 @@ export const RoleLoginPage: React.FC<RoleLoginPageProps> = ({ role }) => {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
-                  placeholder="••••••••"
+                  placeholder="Enter your password"
                   className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between text-xs">
-              <label className="flex items-center gap-2 text-slate-600 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={e => setRememberMe(e.target.checked)}
-                  className="rounded text-blue-600 focus:ring-blue-500"
-                />
-                <span>Remember me</span>
-              </label>
-
-              <button
-                type="button"
-                onClick={() => setShowForgotModal(true)}
-                className="font-semibold text-blue-600 hover:text-blue-800"
-              >
-                Forgot Password?
-              </button>
-            </div>
-
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-[#2563EB] hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-md shadow-blue-500/20 transition-all flex items-center justify-center gap-2"
+              className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition-colors shadow-md disabled:opacity-50"
             >
-              {loading ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <>
-                  <KeyRound className="w-4 h-4" />
-                  <span>Sign In as {role.toUpperCase()}</span>
-                </>
-              )}
+              {loading ? 'Authenticating...' : 'Sign In'}
             </button>
           </form>
 
-          {/* Quick Switch to Other Roles */}
-          <div className="pt-6 mt-6 border-t border-slate-100 text-center">
-            <span className="text-xs text-slate-400 block mb-2">Switch access role:</span>
-            <div className="flex justify-center gap-2 text-xs font-semibold">
-              {role !== 'admin' && (
-                <Link to="/login/admin" className="text-blue-600 hover:underline">
-                  Admin
-                </Link>
-              )}
-              {role !== 'faculty' && (
-                <Link to="/login/faculty" className="text-teal-600 hover:underline">
-                  Faculty
-                </Link>
-              )}
-              {role !== 'student' && (
-                <Link to="/login/student" className="text-purple-600 hover:underline">
-                  Student
-                </Link>
-              )}
-            </div>
+          <div className="mt-6 pt-4 border-t border-slate-100 flex justify-center">
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" /> Back to role selector
+            </Link>
           </div>
-        </div>
-
-        {/* Back Link */}
-        <div className="text-center">
-          <Link
-            to="/login"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Role Selection</span>
-          </Link>
         </div>
       </div>
-
-      {/* Forgot Password Modal */}
-      {showForgotModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4 border border-slate-200 shadow-2xl">
-            <h3 className="text-base font-bold text-slate-900">Institutional Password Recovery</h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              In this frontend demonstration mode, password reset requests are simulated. You can use the standard demo password <code className="bg-slate-100 px-1 py-0.5 rounded font-mono font-bold text-slate-800">{credentials.password}</code> to sign in instantly.
-            </p>
-            <button
-              onClick={() => setShowForgotModal(false)}
-              className="w-full py-2 bg-slate-900 text-white rounded-xl text-xs font-bold"
-            >
-              Understood
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
-
