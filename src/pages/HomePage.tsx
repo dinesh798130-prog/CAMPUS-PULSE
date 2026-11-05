@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowUpRight, CalendarDays, ChevronRight, Clock3, MapPin, Search, Sparkles, Users, Activity, Building2 } from 'lucide-react';
-import { storageService } from '../services/storageService';
+import { apiService } from '../services/apiService';
 import { timetableService } from '../services/timetableService';
 import { Building } from '../types';
 
@@ -14,7 +14,7 @@ export const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setBuildings(storageService.getBuildings());
+    apiService.getBuildings().then(setBuildings).catch(() => {});
     const interval = setInterval(() => setMetrics(timetableService.getCampusMetrics()), 10000);
     return () => clearInterval(interval);
   }, []);

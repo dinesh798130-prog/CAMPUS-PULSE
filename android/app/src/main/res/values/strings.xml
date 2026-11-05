@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">CAMPUS PULSE</string>
+    <string name="title_activity_main">CAMPUS PULSE</string>
+    <string name="package_name">com.campuspulse.app</string>
+    <string name="custom_url_scheme">com.campuspulse.app</string>
+</resources>

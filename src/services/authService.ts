@@ -1,23 +1,40 @@
-import { Role } from '../types';
+import { Role, UserSession } from '../types';
+import { apiService } from './apiService';
 
-export interface UserSession {
-  id: string;
-  role: Role;
-  name: string;
-  email: string;
-  identifier: string; // Registration number or Faculty ID
-  departmentId?: string;
-  sectionId?: string;
-  avatarUrl?: string;
-  group?: string | null;
-}
+const SESSION_KEY = 'cp_user_session';
 
-const AUTH_KEY = 'campus_pulse_session_v1';
+export const DEMO_CREDENTIALS = {
+  admin: {
+    email: 'admin@vignan.ac.in',
+    password: 'admin123',
+    role: 'admin' as Role,
+    name: 'Dr. Ch. Srinivas',
+    identifier: 'VFSTR-ADMIN-01',
+    departmentId: 'All'
+  },
+  faculty: {
+    email: 'k_radhakrishna@vignan.ac.in',
+    password: 'faculty123',
+    role: 'faculty' as Role,
+    name: 'Dr. K. Radhakrishna',
+    identifier: 'VFSTR-FAC-101',
+    departmentId: 'dept-cse'
+  },
+  student: {
+    email: 'rahul.211fa04001@vignan.ac.in',
+    password: 'student123',
+    role: 'student' as Role,
+    name: 'Rahul Sharma',
+    identifier: '211FA04001',
+    departmentId: 'dept-cse',
+    sectionId: 'sec-cse-3a'
+  }
+};
 
 export const authService = {
   getCurrentSession(): UserSession | null {
     try {
-      const stored = localStorage.getItem(AUTH_KEY);
+      const stored = localStorage.getItem(SESSION_KEY);
       if (!stored) return null;
       return JSON.parse(stored) as UserSession;
     } catch {
@@ -25,83 +42,16 @@ export const authService = {
     }
   },
 
-  async login(emailInput: string, passwordInput: string): Promise<UserSession> {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify({ email: emailInput.trim(), password: passwordInput })
-    });
-
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Invalid credentials or login failed');
-    }
-
-    const data = await res.json();
-    const user = data.user;
-
-    const session: UserSession = {
-      id: user.id,
-      role: user.role as Role,
-      name: user.name,
-      email: user.email,
-      identifier: user.group || user.facultyId || user.id,
-      group: user.group,
-      departmentId: user.group ? 'ACSE' : undefined,
-      sectionId: user.group || undefined
-    };
-
-    localStorage.setItem(AUTH_KEY, JSON.stringify(session));
-    return session;
+  async login(email: string, role: Role, password?: string): Promise<UserSession> {
+    // Authenticate directly with the production backend
+    return await apiService.login({ email, password, role });
   },
 
   async logout(): Promise<void> {
-    try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include'
-      });
-    } catch (e) {
-      console.warn('Logout API call failed:', e);
-    }
-    localStorage.removeItem(AUTH_KEY);
-  },
-
-  async checkServerSession(): Promise<UserSession | null> {
-    try {
-      const res = await fetch('/api/auth/me', { credentials: 'include' });
-      if (!res.ok) {
-        localStorage.removeItem(AUTH_KEY);
-        return null;
-      }
-      const data = await res.json();
-      const user = data.user;
-      const session: UserSession = {
-        id: user.id,
-        role: user.role as Role,
-        name: user.name,
-        email: user.email,
-        identifier: user.group || user.facultyId || user.id,
-        group: user.group,
-        departmentId: user.group ? 'ACSE' : undefined,
-        sectionId: user.group || undefined
-      };
-      localStorage.setItem(AUTH_KEY, JSON.stringify(session));
-      return session;
-    } catch {
-      return this.getCurrentSession();
-    }
+    await apiService.logout();
   },
 
   isAuthenticated(): boolean {
     return this.getCurrentSession() !== null;
-  },
-
-  hasRole(role: Role): boolean {
-    const session = this.getCurrentSession();
-    return session?.role === role;
   }
 };

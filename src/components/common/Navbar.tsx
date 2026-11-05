@@ -35,6 +35,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch }) => {
     setUnreadCount(notifs.filter(n => !n.isRead).length);
   }, [location.pathname]);
 
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const handleHardwareBack = (e: Event) => {
+      e.preventDefault();
+      setMobileMenuOpen(false);
+    };
+    window.addEventListener('campus_pulse_hardware_back', handleHardwareBack);
+    return () => window.removeEventListener('campus_pulse_hardware_back', handleHardwareBack);
+  }, [mobileMenuOpen]);
+
   const navLinks = [
     { label: 'Home', path: '/', icon: Building },
     { label: 'Timetable', path: '/timetable', icon: Calendar },

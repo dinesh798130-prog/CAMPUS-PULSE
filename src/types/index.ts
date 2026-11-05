@@ -226,3 +226,15 @@ export interface ResourceAvailabilityItem {
   nextAvailableTime: string;
   capacity?: number;
 }
+
+export interface UserSession {
+  id: string;
+  role: Role;
+  name: string;
+  email: string;
+  identifier: string; // Registration number or Faculty ID
+  departmentId?: string;
+  sectionId?: string;
+  avatarUrl?: string;
+  token?: string;
+}

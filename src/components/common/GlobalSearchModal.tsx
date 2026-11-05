@@ -12,7 +12,7 @@ import {
   ArrowRight,
   Sparkles
 } from 'lucide-react';
-import { storageService } from '../../services/storageService';
+import { apiService } from '../../services/apiService';
 import { timetableService } from '../../services/timetableService';
 import { Room, Faculty, Subject, Building, Department } from '../../types';
 
@@ -34,11 +34,19 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
 
   useEffect(() => {
     if (isOpen) {
-      setRooms(storageService.getRooms());
-      setFaculty(storageService.getFaculty());
-      setSubjects(storageService.getSubjects());
-      setBuildings(storageService.getBuildings());
-      setDepartments(storageService.getDepartments());
+      Promise.all([
+        apiService.getRooms().catch(() => []),
+        apiService.getFaculty().catch(() => []),
+        apiService.getSubjects().catch(() => []),
+        apiService.getBuildings().catch(() => []),
+        apiService.getDepartments().catch(() => [])
+      ]).then(([rms, facs, subjs, bldgs, depts]) => {
+        setRooms(rms);
+        setFaculty(facs);
+        setSubjects(subjs);
+        setBuildings(bldgs);
+        setDepartments(depts);
+      });
       setTimeout(() => inputRef.current?.focus(), 50);
     } else {
       setQuery('');
@@ -60,8 +68,20 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({ isOpen, on
         onClose();
       }
     };
+
+    const handleHardwareBack = (e: Event) => {
+      if (isOpen) {
+        e.preventDefault();
+        onClose();
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('campus_pulse_hardware_back', handleHardwareBack);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('campus_pulse_hardware_back', handleHardwareBack);
+    };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;

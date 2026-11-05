@@ -1,20 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
 import {
   Building2,
-  Layers,
-  DoorOpen,
-  FlaskConical,
   Clock,
-  Calendar,
-  Compass,
   ArrowLeft,
-  Info,
-  CheckCircle2,
   AlertCircle,
-  Sparkles
+  RefreshCw,
+  Loader2
 } from 'lucide-react';
-import { storageService } from '../services/storageService';
+import { apiService } from '../services/apiService';
 import { timetableService } from '../services/timetableService';
 import { Building, Floor, Room } from '../types';
 import { FloorBlueprint } from '../components/blueprint/FloorBlueprint';
@@ -25,9 +19,10 @@ import { DAYS_OF_WEEK } from '../utils/timeUtils';
 export const BuildingDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
 
-  // Find building by slug or path
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [building, setBuilding] = useState<Building | undefined>(undefined);
   const [floors, setFloors] = useState<Floor[]>([]);
   const [selectedFloor, setSelectedFloor] = useState<Floor | null>(null);
@@ -38,44 +33,108 @@ export const BuildingDetailPage: React.FC = () => {
   const [simulatedDay, setSimulatedDay] = useState<string>('Monday');
   const [simulatedTime, setSimulatedTime] = useState<string>('10:00');
 
-  useEffect(() => {
-    const allBuildings = storageService.getBuildings();
-    const currentSlug = slug || 'nagarjuna-block';
-    const foundBldg = allBuildings.find(b => b.slug === currentSlug);
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const allBuildings = await apiService.getBuildings();
+      const currentSlug = slug || 'nagarjuna-block';
+      const foundBldg = allBuildings.find(b => b.slug === currentSlug || b.id === currentSlug);
 
-    if (foundBldg) {
-      setBuilding(foundBldg);
-      const bldgFloors = storageService.getFloorsByBuilding(foundBldg.id);
-      setFloors(bldgFloors);
+      if (foundBldg) {
+        setBuilding(foundBldg);
+        const [bldgFloors, bldgRooms] = await Promise.all([
+          apiService.getFloors(foundBldg.id),
+          apiService.getRooms({ buildingId: foundBldg.id })
+        ]);
 
-      // Check query param for floor
-      const queryFloorId = searchParams.get('floor');
-      const targetFloor = queryFloorId
-        ? bldgFloors.find(f => f.id === queryFloorId)
-        : bldgFloors[0];
+        setFloors(bldgFloors);
+        setRooms(bldgRooms);
 
-      setSelectedFloor(targetFloor || bldgFloors[0] || null);
+        // Check query param for floor
+        const queryFloorId = searchParams.get('floor');
+        const targetFloor = queryFloorId
+          ? bldgFloors.find(f => f.id === queryFloorId)
+          : bldgFloors[0];
 
-      // Check query param for room
-      const queryRoomId = searchParams.get('room');
-      if (queryRoomId) {
-        const foundRoom = storageService.getRoomById(queryRoomId);
-        if (foundRoom) {
-          setSelectedRoom(foundRoom);
-          const roomFloor = bldgFloors.find(f => f.id === foundRoom.floorId);
-          if (roomFloor) setSelectedFloor(roomFloor);
+        setSelectedFloor(targetFloor || bldgFloors[0] || null);
+
+        // Check query param for room
+        const queryRoomId = searchParams.get('room');
+        if (queryRoomId) {
+          const foundRoom = bldgRooms.find(r => r.id === queryRoomId);
+          if (foundRoom) {
+            setSelectedRoom(foundRoom);
+            const roomFloor = bldgFloors.find(f => f.id === foundRoom.floorId);
+            if (roomFloor) setSelectedFloor(roomFloor);
+          }
         }
+      } else {
+        setBuilding(undefined);
       }
+    } catch (err: any) {
+      setError(err.message || 'Failed to connect to backend API for campus block details.');
+    } finally {
+      setIsLoading(false);
     }
-    setRooms(storageService.getRooms());
   }, [slug, searchParams]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex flex-col items-center justify-center text-center space-y-4">
+        <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+        <h2 className="text-lg font-bold text-slate-800">Connecting to Backend API...</h2>
+        <p className="text-xs text-slate-500 font-mono">GET /api/buildings, /api/floors, /api/rooms</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-12 space-y-4">
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-red-800 space-y-3">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-6 h-6 text-red-600 shrink-0" />
+            <h2 className="text-lg font-bold">Backend API Connection Error</h2>
+          </div>
+          <p className="text-sm text-red-700">
+            Could not fetch building layout from the production backend at{' '}
+            <code className="font-mono bg-red-100 px-2 py-0.5 rounded text-xs">
+              https://campuspulse-api-788f.onrender.com
+            </code>
+          </p>
+          <div className="bg-white/80 p-3 rounded-lg border border-red-200 font-mono text-xs text-red-900 break-all">
+            {error}
+          </div>
+          <div className="flex items-center gap-3 pt-2">
+            <button
+              onClick={() => loadData()}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition shadow-sm"
+            >
+              <RefreshCw className="w-3.5 h-3.5" /> Retry Request
+            </button>
+            <Link
+              to="/campus"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold transition"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" /> Campus Explorer
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!building) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-center space-y-4">
         <Building2 className="w-12 h-12 mx-auto text-slate-300" />
         <h2 className="text-xl font-bold text-slate-800">Campus Block Not Found</h2>
-        <p className="text-sm text-slate-500">The requested building identifier does not exist.</p>
+        <p className="text-sm text-slate-500">The requested building identifier does not exist on the backend.</p>
         <Link to="/campus" className="inline-flex items-center gap-2 text-sm text-blue-600 font-bold">
           <ArrowLeft className="w-4 h-4" /> Back to Campus Explorer
         </Link>
@@ -93,7 +152,6 @@ export const BuildingDetailPage: React.FC = () => {
     const status = timetableService.getRoomStatus(r.id, simulatedDay as any, simulatedTime);
     if (status.status === 'occupied') occupiedCount++;
   });
-  const availableCount = Math.max(0, bldgRooms.length - occupiedCount);
 
   // Rooms for the currently selected floor
   const floorRooms = selectedFloor
@@ -120,7 +178,7 @@ export const BuildingDetailPage: React.FC = () => {
         <span className="text-slate-800 font-bold">{building.name} ({building.originalCode})</span>
       </nav>
 
-      {/* Building Hero Banner with Exact Photo */}
+      {/* Building Hero Banner with Photo */}
       <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-0">
         {/* Left: Building Photograph */}
         <div className="relative lg:col-span-5 h-64 lg:h-auto min-h-[280px] bg-slate-100 overflow-hidden">
@@ -248,7 +306,7 @@ export const BuildingDetailPage: React.FC = () => {
                 </div>
                 <h4 className="font-bold text-sm mt-1">{flr.name}</h4>
                 <p className={`text-[11px] mt-0.5 ${isSelected ? 'text-slate-300' : 'text-slate-500'}`}>
-                  {flr.roomIds.length} Registered Rooms
+                  {flr.roomIds?.length || 0} Registered Rooms
                 </p>
               </button>
             );
@@ -271,7 +329,7 @@ export const BuildingDetailPage: React.FC = () => {
         </section>
       )}
 
-      {/* FLOOR RESOURCE TABLE (SYNCHRONIZED WITH BLUEPRINT) */}
+      {/* FLOOR RESOURCE TABLE */}
       {selectedFloor && (
         <section className="space-y-4">
           <FloorResourceTable
@@ -298,4 +356,3 @@ export const BuildingDetailPage: React.FC = () => {
     </div>
   );
 };
-

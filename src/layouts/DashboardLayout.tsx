@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { Logo } from '../components/common/Logo';
 import { useAuth } from '../hooks/useAuth';
-import { DemoDataBadge } from '../components/common/DemoDataBadge';
+import { BackendStatusBanner } from '../components/common/BackendStatusBanner';
 import { GlobalSearchModal } from '../components/common/GlobalSearchModal';
 
 interface DashboardLayoutProps {
@@ -40,6 +40,16 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ requiredRole }
   const navigate = useNavigate();
 
   const role = session?.role || 'admin';
+
+  React.useEffect(() => {
+    if (!sidebarOpen) return;
+    const handleHardwareBack = (e: Event) => {
+      e.preventDefault();
+      setSidebarOpen(false);
+    };
+    window.addEventListener('campus_pulse_hardware_back', handleHardwareBack);
+    return () => window.removeEventListener('campus_pulse_hardware_back', handleHardwareBack);
+  }, [sidebarOpen]);
 
   // Navigation configurations based on role
   const getNavSections = () => {
@@ -116,7 +126,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ requiredRole }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F5F7FB]">
-      <DemoDataBadge />
+      <BackendStatusBanner />
 
       <div className="flex-1 flex overflow-hidden">
         {/* Desktop Sidebar */}
