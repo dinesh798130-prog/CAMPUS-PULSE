@@ -68,3 +68,4 @@ describe('Interval Search Engine (Section 7.1)', () => {
     expect(st4.status).toBe('unavailable');
   });
 });
+

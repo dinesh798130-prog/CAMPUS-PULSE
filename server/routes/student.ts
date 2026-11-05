@@ -1,22 +1,76 @@
-import { Router, Response } from 'express'
+import { Router, Request, Response } from 'express'
 import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js'
 import { prisma } from '../lib/prisma.js'
+import { z } from 'zod'
 
 const router = Router()
 router.use(requireAuth)
 router.use(requireRole('student', 'admin'))
 
+// GET /api/me/group
+router.get('/group', async (req: AuthRequest, res: Response) => {
+  res.json({ group: req.user!.group || null })
+})
+
+// PUT /api/me/group - update student's enrolled section
+const GroupUpdateSchema = z.object({
+  group: z.string().min(1)
+})
+
+router.put('/group', async (req: AuthRequest, res: Response) => {
+  const result = GroupUpdateSchema.safeParse(req.body)
+  if (!result.success) {
+    res.status(400).json({
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'A valid group name is required.'
+      }
+    })
+    return
+  }
+
+  const { group } = result.data
+  const groupRecord = await prisma.group.findUnique({ where: { name: group } })
+  if (!groupRecord) {
+    res.status(404).json({
+      error: {
+        code: 'NOT_FOUND',
+        message: `Group "${group}" does not exist in the academic directory.`
+      }
+    })
+    return
+  }
+
+  await prisma.user.update({
+    where: { id: req.user!.id },
+    data: { group }
+  })
+
+  req.user!.group = group
+  res.json({ ok: true, group })
+})
+
 // GET /api/me/timetable
 router.get('/timetable', async (req: AuthRequest, res: Response) => {
   const group = req.user!.group
   if (!group) {
-    res.status(400).json({ error: 'No group assigned to this student profile' })
+    res.status(400).json({
+      error: {
+        code: 'NO_GROUP_ASSIGNED',
+        message: 'No student section group is associated with this account.'
+      }
+    })
     return
   }
 
   const groupRecord = await prisma.group.findUnique({ where: { name: group } })
   if (!groupRecord) {
-    res.status(404).json({ error: 'Group record not found' })
+    res.status(404).json({
+      error: {
+        code: 'NOT_FOUND',
+        message: `Group "${group}" not found in system records.`
+      }
+    })
     return
   }
 
@@ -42,26 +96,37 @@ router.get('/notifications', async (req: AuthRequest, res: Response) => {
   res.json({ notifications })
 })
 
-// PATCH /api/me/notifications/:id/read
-router.patch('/notifications/:id/read', async (req: AuthRequest, res: Response) => {
+// POST /api/me/notifications/:id/read
+router.post('/notifications/:id/read', async (req: AuthRequest, res: Response) => {
+  const { id } = req.params
   await prisma.notification.updateMany({
-    where: { id: req.params.id, userId: req.user!.id },
+    where: { id, userId: req.user!.id },
     data: { read: true }
   })
-  res.json({ ok: true })
+  res.json({ ok: true, id, read: true })
 })
 
 // GET /api/me/export.ics
 router.get('/export.ics', async (req: AuthRequest, res: Response) => {
   const group = req.user!.group
   if (!group) {
-    res.status(400).json({ error: 'No group assigned' })
+    res.status(400).json({
+      error: {
+        code: 'NO_GROUP_ASSIGNED',
+        message: 'No group assigned to export schedule.'
+      }
+    })
     return
   }
 
   const groupRecord = await prisma.group.findUnique({ where: { name: group } })
   if (!groupRecord) {
-    res.status(404).json({ error: 'Group not found' })
+    res.status(404).json({
+      error: {
+        code: 'NOT_FOUND',
+        message: 'Group not found.'
+      }
+    })
     return
   }
 
@@ -92,16 +157,13 @@ router.get('/export.ics', async (req: AuthRequest, res: Response) => {
 
   for (const entry of entries) {
     const byDay = dayMap[entry.day] || 'MO'
-    const startHourMin = entry.startTime.replace(':', '') + '00'
-    const endHourMin = entry.endTime.replace(':', '') + '00'
-
     lines.push('BEGIN:VEVENT')
     lines.push(`UID:campuspulse-${entry.id}@vignan.ac.in`)
     lines.push(`DTSTAMP:${stamp}`)
     lines.push(`SUMMARY:${entry.subject || 'Class'} (${group})`)
     lines.push(`RRULE:FREQ=WEEKLY;BYDAY=${byDay}`)
     lines.push(`LOCATION:${entry.roomId || 'Campus'}`)
-    lines.push(`DESCRIPTION:Scheduled class for ${group} in ${entry.roomId || 'Room TBD'}`)
+    lines.push(`DESCRIPTION:Scheduled session for ${group} in ${entry.roomId || 'TBD'}`)
     lines.push('END:VEVENT')
   }
 

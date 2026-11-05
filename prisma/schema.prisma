@@ -17,6 +17,7 @@ model User {
   faculty      Faculty?  @relation(fields: [facultyId], references: [id])
   group        String?   // e.g. "II AIML-J" for student
   is_demo      Boolean   @default(false)
+  lockedUntil  DateTime? // 15-minute lockout after 5 failed attempts
   createdAt    DateTime  @default(now())
   sessions     Session[]
   auditLogs    AuditLog[]
@@ -25,12 +26,16 @@ model User {
 }
 
 model Session {
-  id        String   @id @default(cuid())
-  userId    String
-  token     String   @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                 String   @id @default(cuid())
+  userId             String
+  tokenHash          String   @unique
+  lastActiveAt       DateTime @default(now())
+  expiresAt          DateTime // 12h idle rolling expiry
+  absoluteExpiresAt  DateTime // 7d absolute expiry
+  createdAt          DateTime @default(now())
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tokenHash])
 }
 
 model FailedLogin {
@@ -65,6 +70,8 @@ model Room {
   blockId     String
   floorId     String?
   floor_num   Int?
+  type        String?  // "Classroom" | "Laboratory" | "Seminar"
+  capacity    Int?     // e.g. 60
   confidence  String   // "confirmed" | "inferred" | "unknown"
   is_mock     Boolean  @default(false)
   block       Block    @relation(fields: [blockId], references: [id])

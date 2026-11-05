@@ -3,7 +3,6 @@ import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js'
 import { prisma } from '../lib/prisma.js'
 import { log } from '../lib/logger.js'
 import multer from 'multer'
-import path from 'path'
 import fs from 'fs'
 import crypto from 'crypto'
 import { z } from 'zod'
@@ -44,20 +43,17 @@ const DAY_MAP_TO_NUM: Record<string, number> = {
   SUN: 7
 }
 
-const DAY_MAP_FROM_NUM: Record<number, string> = {
-  1: 'MON',
-  2: 'TUE',
-  3: 'WED',
-  4: 'THU',
-  5: 'FRI',
-  6: 'SAT',
-  7: 'SUN'
+function getPagination(req: Request) {
+  const page = Math.max(1, parseInt(req.query.page as string, 10) || 1)
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 50))
+  const skip = (page - 1) * limit
+  return { page, limit, skip }
 }
 
 // POST /api/admin/timetable/import
 router.post('/timetable/import', upload.single('file'), async (req: AuthRequest, res: Response) => {
   if (!req.file) {
-    res.status(400).json({ error: 'No file uploaded' })
+    res.status(400).json({ error: { code: 'NO_FILE_UPLOADED', message: 'No file uploaded.' } })
     return
   }
 
@@ -69,7 +65,9 @@ router.post('/timetable/import', upload.single('file'), async (req: AuthRequest,
 
   if (header[0] !== 0x50 || header[1] !== 0x4b) {
     fs.unlinkSync(req.file.path)
-    res.status(400).json({ error: 'Uploaded file is not a valid Excel (.xlsx) file (invalid magic bytes)' })
+    res.status(400).json({
+      error: { code: 'INVALID_FILE_TYPE', message: 'Uploaded file is not a valid Excel (.xlsx) file.' }
+    })
     return
   }
 
@@ -80,7 +78,7 @@ router.post('/timetable/import', upload.single('file'), async (req: AuthRequest,
   if (existing) {
     fs.unlinkSync(req.file.path)
     res.status(409).json({
-      error: 'This file has already been imported',
+      error: { code: 'FILE_ALREADY_EXISTS', message: 'This file has already been imported.' },
       sourceFileId: existing.id,
       status: existing.status
     })
@@ -92,7 +90,7 @@ router.post('/timetable/import', upload.single('file'), async (req: AuthRequest,
     sha256,
     sizeBytes: req.file.size,
     status: 'staged',
-    note: 'Staged successfully. Call /commit to publish to live schedule.'
+    note: 'Staged successfully outside web root. Use /commit to publish to live schedule.'
   }
 
   const sourceFile = await prisma.sourceFile.create({
@@ -121,12 +119,12 @@ router.post('/timetable/import', upload.single('file'), async (req: AuthRequest,
 router.post('/timetable/import/:id/commit', async (req: AuthRequest, res: Response) => {
   const sourceFile = await prisma.sourceFile.findUnique({ where: { id: req.params.id } })
   if (!sourceFile) {
-    res.status(404).json({ error: 'Source file not found' })
+    res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Source file not found.' } })
     return
   }
 
   if (sourceFile.status === 'committed') {
-    res.status(409).json({ error: 'Source file is already committed' })
+    res.status(409).json({ error: { code: 'ALREADY_COMMITTED', message: 'Source file is already committed.' } })
     return
   }
 
@@ -140,6 +138,14 @@ router.post('/timetable/import/:id/commit', async (req: AuthRequest, res: Respon
     data: { is_live: true }
   })
 
+  // Clean up any uploaded temp file
+  const uploadedFiles = fs.readdirSync(uploadDir)
+  for (const f of uploadedFiles) {
+    try {
+      fs.unlinkSync(`${uploadDir}/${f}`)
+    } catch {}
+  }
+
   await prisma.auditLog.create({
     data: {
       userId: req.user!.id,
@@ -151,6 +157,81 @@ router.post('/timetable/import/:id/commit', async (req: AuthRequest, res: Respon
   })
 
   res.json({ ok: true, sourceFileId: req.params.id, publishedEntries: updatedEntries.count })
+})
+
+// GET /api/admin/entries?group=&day=
+router.get('/entries', async (req: Request, res: Response) => {
+  const { group, day } = req.query as { group?: string; day?: string }
+  const { limit, skip, page } = getPagination(req)
+
+  const where: any = {}
+  if (day) where.day = day.toUpperCase()
+  if (group) {
+    const g = await prisma.group.findFirst({ where: { OR: [{ id: group }, { name: group }] } })
+    if (g) where.groupId = g.id
+  }
+
+  const [entries, total] = await Promise.all([
+    prisma.entry.findMany({
+      where,
+      include: {
+        room: true,
+        faculty: { select: { id: true, name: true, code: true } },
+        group: true
+      },
+      skip,
+      take: limit,
+      orderBy: [{ day: 'asc' }, { startTime: 'asc' }]
+    }),
+    prisma.entry.count({ where })
+  ])
+
+  res.json({ entries, pagination: { total, page, limit } })
+})
+
+// POST /api/admin/entries/:id/change - direct admin change
+const DirectChangeSchema = z.object({
+  roomId: z.string().optional(),
+  day: z.string().optional(),
+  startTime: z.string().optional(),
+  endTime: z.string().optional(),
+  reason: z.string().optional()
+})
+
+router.post('/entries/:id/change', async (req: AuthRequest, res: Response) => {
+  const parsed = DirectChangeSchema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message } })
+    return
+  }
+
+  const entry = await prisma.entry.findUnique({ where: { id: req.params.id } })
+  if (!entry) {
+    res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Timetable entry not found.' } })
+    return
+  }
+
+  const updated = await prisma.entry.update({
+    where: { id: req.params.id },
+    data: {
+      ...(parsed.data.roomId ? { roomId: parsed.data.roomId } : {}),
+      ...(parsed.data.day ? { day: parsed.data.day.toUpperCase() } : {}),
+      ...(parsed.data.startTime ? { startTime: parsed.data.startTime } : {}),
+      ...(parsed.data.endTime ? { endTime: parsed.data.endTime } : {})
+    }
+  })
+
+  await prisma.auditLog.create({
+    data: {
+      userId: req.user!.id,
+      action: 'entry.change',
+      entity: 'Entry',
+      entityId: entry.id,
+      detail: `Direct schedule update: ${parsed.data.reason || 'Admin modification'}`
+    }
+  })
+
+  res.json({ ok: true, entry: updated })
 })
 
 // GET /api/admin/disruptions
@@ -166,6 +247,7 @@ router.get('/disruptions', async (_req: Request, res: Response) => {
   res.json({ disruptions })
 })
 
+// POST /api/admin/disruptions
 const DisruptionSchema = z.object({
   entryId: z.string().optional(),
   roomId: z.string().optional(),
@@ -176,11 +258,10 @@ const DisruptionSchema = z.object({
   endTime: z.string()
 })
 
-// POST /api/admin/disruptions
 router.post('/disruptions', async (req: AuthRequest, res: Response) => {
   const parsed = DisruptionSchema.safeParse(req.body)
   if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.errors })
+    res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message } })
     return
   }
 
@@ -202,12 +283,8 @@ router.post('/disruptions', async (req: AuthRequest, res: Response) => {
     }
   })
 
-  // Load all live entries
-  const allEntries = await prisma.entry.findMany({
-    where: { is_live: true }
-  })
+  const allEntries = await prisma.entry.findMany({ where: { is_live: true } })
 
-  // Build scheduled entries for engine
   const engineEntries: ScheduledEntry[] = allEntries.map(e => ({
     id: e.id,
     roomId: e.roomId,
@@ -219,9 +296,7 @@ router.post('/disruptions', async (req: AuthRequest, res: Response) => {
     end: e.endTime
   }))
 
-  const allDisruptions = await prisma.disruption.findMany({
-    where: { status: 'open' }
-  })
+  const allDisruptions = await prisma.disruption.findMany({ where: { status: 'open' } })
 
   const engineDisruptions: DisruptionRecord[] = allDisruptions.map(d => ({
     id: d.id,
@@ -238,10 +313,9 @@ router.post('/disruptions', async (req: AuthRequest, res: Response) => {
     code: r.id,
     blockCode: r.blockId,
     floor: r.floor_num ?? 1,
-    capacity: 60
+    capacity: r.capacity || 60
   }))
 
-  // Map to candidate rooms
   const allRoomEntries = new Map<string, ScheduledEntry[]>()
   for (const e of engineEntries) {
     if (e.roomId) {
@@ -355,6 +429,20 @@ router.post('/disruptions', async (req: AuthRequest, res: Response) => {
   })
 })
 
+// GET /api/admin/proposals?status=
+router.get('/proposals', async (req: Request, res: Response) => {
+  const { status } = req.query as { status?: string }
+  const proposals = await prisma.proposal.findMany({
+    where: status ? { status } : {},
+    include: {
+      disruption: true,
+      room: true
+    },
+    orderBy: { createdAt: 'desc' }
+  })
+  res.json({ proposals })
+})
+
 // POST /api/admin/proposals/:id/approve
 router.post('/proposals/:id/approve', async (req: AuthRequest, res: Response) => {
   const proposal = await prisma.proposal.findUnique({
@@ -363,16 +451,16 @@ router.post('/proposals/:id/approve', async (req: AuthRequest, res: Response) =>
   })
 
   if (!proposal) {
-    res.status(404).json({ error: 'Proposal not found' })
+    res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Proposal not found.' } })
     return
   }
 
   if (proposal.status !== 'pending') {
-    res.status(409).json({ error: `Proposal is already ${proposal.status}` })
+    res.status(409).json({ error: { code: 'NOT_PENDING', message: `Proposal is already ${proposal.status}.` } })
     return
   }
 
-  // Hard re-check constraint: ensure proposed room is currently free!
+  // Real-time hard constraint re-check: verify proposed room is still vacant
   const targetDay = proposal.newDay || proposal.disruption.affectedDay
   const targetStart = proposal.newStartTime || proposal.disruption.startTime
   const targetEnd = proposal.newEndTime || proposal.disruption.endTime
@@ -383,10 +471,7 @@ router.post('/proposals/:id/approve', async (req: AuthRequest, res: Response) =>
         roomId: proposal.roomId,
         day: targetDay,
         is_live: true,
-        NOT: [
-          { endTime: { lte: targetStart } },
-          { startTime: { gte: targetEnd } }
-        ]
+        NOT: [{ endTime: { lte: targetStart } }, { startTime: { gte: targetEnd } }]
       }
     })
 
@@ -396,14 +481,15 @@ router.post('/proposals/:id/approve', async (req: AuthRequest, res: Response) =>
         data: { status: 'stale' }
       })
       res.status(409).json({
-        error: 'Hard constraint check failed: Room has become occupied since proposal was generated',
-        status: 'stale'
+        error: {
+          code: 'STALE_PROPOSAL',
+          message: 'Hard constraint check failed: Room became occupied since proposal generation.'
+        }
       })
       return
     }
   }
 
-  // Apply approval
   await prisma.proposal.update({
     where: { id: req.params.id },
     data: {
@@ -413,7 +499,6 @@ router.post('/proposals/:id/approve', async (req: AuthRequest, res: Response) =>
     }
   })
 
-  // Mark other proposals for this disruption as rejected
   await prisma.proposal.updateMany({
     where: {
       disruptionId: proposal.disruptionId,
@@ -422,13 +507,11 @@ router.post('/proposals/:id/approve', async (req: AuthRequest, res: Response) =>
     data: { status: 'rejected' }
   })
 
-  // Resolve disruption
   await prisma.disruption.update({
     where: { id: proposal.disruptionId },
     data: { status: 'resolved' }
   })
 
-  // If disruption was linked to an entry, update room on entry
   if (proposal.disruption.entryId && proposal.roomId) {
     await prisma.entry.update({
       where: { id: proposal.disruption.entryId },
@@ -436,7 +519,6 @@ router.post('/proposals/:id/approve', async (req: AuthRequest, res: Response) =>
     })
   }
 
-  // Notify students
   let notifiedCount = 0
   if (proposal.disruption.entryId) {
     const entry = await prisma.entry.findUnique({
@@ -444,9 +526,7 @@ router.post('/proposals/:id/approve', async (req: AuthRequest, res: Response) =>
       include: { group: true }
     })
     if (entry?.group?.name) {
-      const students = await prisma.user.findMany({
-        where: { group: entry.group.name }
-      })
+      const students = await prisma.user.findMany({ where: { group: entry.group.name } })
       for (const st of students) {
         await prisma.notification.create({
           data: {
@@ -461,7 +541,6 @@ router.post('/proposals/:id/approve', async (req: AuthRequest, res: Response) =>
     }
   }
 
-  // Audit log
   await prisma.auditLog.create({
     data: {
       userId: req.user!.id,
@@ -479,7 +558,7 @@ router.post('/proposals/:id/approve', async (req: AuthRequest, res: Response) =>
 router.post('/proposals/:id/reject', async (req: AuthRequest, res: Response) => {
   const proposal = await prisma.proposal.findUnique({ where: { id: req.params.id } })
   if (!proposal) {
-    res.status(404).json({ error: 'Proposal not found' })
+    res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Proposal not found.' } })
     return
   }
 
@@ -501,18 +580,178 @@ router.post('/proposals/:id/reject', async (req: AuthRequest, res: Response) => 
   res.json({ ok: true })
 })
 
-// GET /api/admin/audit-log
-router.get('/audit-log', async (_req: Request, res: Response) => {
-  const logs = await prisma.auditLog.findMany({
-    include: {
-      user: {
-        select: { id: true, name: true, email: true, role: true }
-      }
-    },
-    orderBy: { createdAt: 'desc' },
-    take: 100
+// GET /api/admin/audit-log?from=&to=
+router.get('/audit-log', async (req: Request, res: Response) => {
+  const { from, to } = req.query as { from?: string; to?: string }
+  const { limit, skip, page } = getPagination(req)
+
+  const where: any = {}
+  if (from || to) {
+    where.createdAt = {
+      ...(from ? { gte: new Date(from) } : {}),
+      ...(to ? { lte: new Date(to) } : {})
+    }
+  }
+
+  const [logs, total] = await Promise.all([
+    prisma.auditLog.findMany({
+      where,
+      include: { user: { select: { id: true, name: true, email: true, role: true } } },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    }),
+    prisma.auditLog.count({ where })
+  ])
+
+  res.json({ logs, pagination: { total, page, limit } })
+})
+
+// GET /api/admin/conflicts - detect double-booked rooms or faculty
+router.get('/conflicts', async (_req: Request, res: Response) => {
+  const live = await prisma.entry.findMany({
+    where: { is_live: true },
+    include: { room: true, faculty: true, group: true }
   })
-  res.json({ logs })
+
+  const conflicts: Array<{ type: string; description: string; entries: any[] }> = []
+
+  // Check room conflicts
+  for (let i = 0; i < live.length; i++) {
+    for (let j = i + 1; j < live.length; j++) {
+      const a = live[i]
+      const b = live[j]
+
+      if (a.day === b.day) {
+        const overlap = !(a.endTime <= b.startTime || a.startTime >= b.endTime)
+        if (overlap) {
+          if (a.roomId && a.roomId === b.roomId) {
+            conflicts.push({
+              type: 'ROOM_CLASH',
+              description: `Room ${a.roomId} double-booked on ${a.day} ${a.startTime}-${a.endTime}`,
+              entries: [a, b]
+            })
+          }
+          if (a.facultyId && a.facultyId === b.facultyId) {
+            conflicts.push({
+              type: 'FACULTY_CLASH',
+              description: `Faculty ${a.faculty?.name} double-booked on ${a.day} ${a.startTime}-${a.endTime}`,
+              entries: [a, b]
+            })
+          }
+        }
+      }
+    }
+  }
+
+  res.json({ count: conflicts.length, conflicts })
+})
+
+// --- CRUD Endpoints for Academic Entities ---
+
+// Rooms CRUD
+router.get('/rooms', async (_req: Request, res: Response) => {
+  const rooms = await prisma.room.findMany({ include: { floor: true } })
+  res.json({ rooms })
+})
+
+router.post('/rooms', async (req: AuthRequest, res: Response) => {
+  const room = await prisma.room.create({ data: req.body })
+  res.status(201).json({ room })
+})
+
+router.put('/rooms/:id', async (req: AuthRequest, res: Response) => {
+  const room = await prisma.room.update({ where: { id: req.params.id }, data: req.body })
+  res.json({ room })
+})
+
+router.delete('/rooms/:id', async (req: AuthRequest, res: Response) => {
+  await prisma.room.delete({ where: { id: req.params.id } })
+  res.json({ ok: true })
+})
+
+// Faculty CRUD
+router.get('/faculty', async (_req: Request, res: Response) => {
+  const faculty = await prisma.faculty.findMany({ include: { department: true } })
+  res.json({ faculty })
+})
+
+router.post('/faculty', async (req: AuthRequest, res: Response) => {
+  const faculty = await prisma.faculty.create({ data: req.body })
+  res.status(201).json({ faculty })
+})
+
+router.put('/faculty/:id', async (req: AuthRequest, res: Response) => {
+  const faculty = await prisma.faculty.update({ where: { id: req.params.id }, data: req.body })
+  res.json({ faculty })
+})
+
+router.delete('/faculty/:id', async (req: AuthRequest, res: Response) => {
+  await prisma.faculty.delete({ where: { id: req.params.id } })
+  res.json({ ok: true })
+})
+
+// Groups CRUD
+router.get('/groups-crud', async (_req: Request, res: Response) => {
+  const groups = await prisma.group.findMany({ include: { department: true } })
+  res.json({ groups })
+})
+
+router.post('/groups-crud', async (req: AuthRequest, res: Response) => {
+  const group = await prisma.group.create({ data: req.body })
+  res.status(201).json({ group })
+})
+
+router.put('/groups-crud/:id', async (req: AuthRequest, res: Response) => {
+  const group = await prisma.group.update({ where: { id: req.params.id }, data: req.body })
+  res.json({ group })
+})
+
+router.delete('/groups-crud/:id', async (req: AuthRequest, res: Response) => {
+  await prisma.group.delete({ where: { id: req.params.id } })
+  res.json({ ok: true })
+})
+
+// Departments CRUD
+router.get('/departments', async (_req: Request, res: Response) => {
+  const departments = await prisma.department.findMany()
+  res.json({ departments })
+})
+
+router.post('/departments', async (req: AuthRequest, res: Response) => {
+  const department = await prisma.department.create({ data: req.body })
+  res.status(201).json({ department })
+})
+
+router.put('/departments/:id', async (req: AuthRequest, res: Response) => {
+  const department = await prisma.department.update({ where: { id: req.params.id }, data: req.body })
+  res.json({ department })
+})
+
+router.delete('/departments/:id', async (req: AuthRequest, res: Response) => {
+  await prisma.department.delete({ where: { id: req.params.id } })
+  res.json({ ok: true })
+})
+
+// Blocks CRUD
+router.get('/blocks-crud', async (_req: Request, res: Response) => {
+  const blocks = await prisma.block.findMany({ include: { floors: true } })
+  res.json({ blocks })
+})
+
+router.post('/blocks-crud', async (req: AuthRequest, res: Response) => {
+  const block = await prisma.block.create({ data: req.body })
+  res.status(201).json({ block })
+})
+
+router.put('/blocks-crud/:id', async (req: AuthRequest, res: Response) => {
+  const block = await prisma.block.update({ where: { id: req.params.id }, data: req.body })
+  res.json({ block })
+})
+
+router.delete('/blocks-crud/:id', async (req: AuthRequest, res: Response) => {
+  await prisma.block.delete({ where: { id: req.params.id } })
+  res.json({ ok: true })
 })
 
 export default router

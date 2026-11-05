@@ -13,3 +13,4 @@
   "include": ["server/**/*", "prisma/seed.ts", "scripts/**/*", "src/engine/**/*"],
   "exclude": ["node_modules", "dist", "dist-server"]
 }
+

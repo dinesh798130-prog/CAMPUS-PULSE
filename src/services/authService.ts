@@ -1,4 +1,5 @@
 import { Role } from '../types';
+import { api, setAuthToken, clearAuthToken } from './api';
 
 export interface UserSession {
   id: string;
@@ -26,23 +27,16 @@ export const authService = {
   },
 
   async login(emailInput: string, passwordInput: string): Promise<UserSession> {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify({ email: emailInput.trim(), password: passwordInput })
+    const data = await api.post<{ user: any; token?: string; expiresAt?: string }>('/api/auth/login', {
+      email: emailInput.trim(),
+      password: passwordInput
     });
 
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Invalid credentials or login failed');
+    if (data.token) {
+      await setAuthToken(data.token);
     }
 
-    const data = await res.json();
     const user = data.user;
-
     const session: UserSession = {
       id: user.id,
       role: user.role as Role,
@@ -60,24 +54,17 @@ export const authService = {
 
   async logout(): Promise<void> {
     try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include'
-      });
+      await api.post('/api/auth/logout', {});
     } catch (e) {
       console.warn('Logout API call failed:', e);
     }
+    await clearAuthToken();
     localStorage.removeItem(AUTH_KEY);
   },
 
   async checkServerSession(): Promise<UserSession | null> {
     try {
-      const res = await fetch('/api/auth/me', { credentials: 'include' });
-      if (!res.ok) {
-        localStorage.removeItem(AUTH_KEY);
-        return null;
-      }
-      const data = await res.json();
+      const data = await api.get<{ user: any }>('/api/auth/me');
       const user = data.user;
       const session: UserSession = {
         id: user.id,
@@ -92,7 +79,9 @@ export const authService = {
       localStorage.setItem(AUTH_KEY, JSON.stringify(session));
       return session;
     } catch {
-      return this.getCurrentSession();
+      await clearAuthToken();
+      localStorage.removeItem(AUTH_KEY);
+      return null;
     }
   },
 

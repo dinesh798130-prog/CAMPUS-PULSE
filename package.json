@@ -17,6 +17,8 @@
     "scenario": "tsx scripts/demo-scenario.ts"
   },
   "dependencies": {
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/preferences": "^8.0.1",
     "@prisma/client": "^6.4.1",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",
@@ -37,6 +39,8 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/cli": "^8.6.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
