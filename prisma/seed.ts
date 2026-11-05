@@ -160,7 +160,7 @@ async function main() {
 
   await prisma.user.upsert({
     where: { email: process.env.ADMIN_SEED_EMAIL || 'admin@vignan.ac.in' },
-    update: { password: adminPass },
+    update: {},
     create: {
       email: process.env.ADMIN_SEED_EMAIL || 'admin@vignan.ac.in',
       password: adminPass,
@@ -172,7 +172,7 @@ async function main() {
 
   await prisma.user.upsert({
     where: { email: process.env.FACULTY_SEED_EMAIL || 'faculty@vignan.ac.in' },
-    update: { password: facultyPass, facultyId: demoFaculty.id },
+    update: { facultyId: demoFaculty.id },
     create: {
       email: process.env.FACULTY_SEED_EMAIL || 'faculty@vignan.ac.in',
       password: facultyPass,
@@ -185,7 +185,7 @@ async function main() {
 
   await prisma.user.upsert({
     where: { email: process.env.STUDENT_SEED_EMAIL || 'student@vignan.ac.in' },
-    update: { password: studentPass, group: 'II AIML-J' },
+    update: {},
     create: {
       email: process.env.STUDENT_SEED_EMAIL || 'student@vignan.ac.in',
       password: studentPass,
@@ -232,8 +232,7 @@ async function main() {
   ]
 
   // 10. Official Real II AIML-J Timetable Entries (w.e.f. 17-08-2026)
-  // Clean all previous seed entries for group
-  await prisma.entry.deleteMany({ where: { groupId: group.id } })
+  const existingEntriesCount = await prisma.entry.count({ where: { groupId: group.id } })
 
   const realAssignments: Array<{ day: string; pIdx: number; room: string; subject: string; type: string }> = [
     // MON: N-217, LAB-1(Library), N-617, N-617
@@ -272,54 +271,58 @@ async function main() {
     { day: 'SAT', pIdx: 4, room: 'N-606', subject: 'Mentorship & Review', type: 'class' },
   ]
 
-  for (const item of realAssignments) {
-    const p = periods[item.pIdx]
+  if (existingEntriesCount === 0) {
+    for (const item of realAssignments) {
+      const p = periods[item.pIdx]
+      await prisma.entry.create({
+        data: {
+          sourceFileId: sourceFile.id,
+          groupId: group.id,
+          roomId: item.room,
+          facultyId: demoFaculty.id,
+          day: item.day,
+          startTime: p.start,
+          endTime: p.end,
+          subject: item.subject,
+          entryType: item.type,
+          is_mock: false,
+          is_live: true
+        }
+      })
+    }
+
+    // Library non-room slots (from II AIML-J sheet)
     await prisma.entry.create({
       data: {
         sourceFileId: sourceFile.id,
         groupId: group.id,
-        roomId: item.room,
-        facultyId: demoFaculty.id,
-        day: item.day,
-        startTime: p.start,
-        endTime: p.end,
-        subject: item.subject,
-        entryType: item.type,
+        roomId: null,
+        day: 'MON',
+        startTime: periods[2].start,
+        endTime: periods[2].end,
+        subject: 'Central Library Reference Slot (LAB-1)',
+        entryType: 'library',
         is_mock: false,
         is_live: true
       }
     })
+    await prisma.entry.create({
+      data: {
+        sourceFileId: sourceFile.id,
+        groupId: group.id,
+        roomId: null,
+        day: 'THU',
+        startTime: periods[2].start,
+        endTime: periods[2].end,
+        subject: 'Central Library Slot (LAB-1 LIB)',
+        entryType: 'library',
+        is_mock: false,
+        is_live: true
+      }
+    })
+  } else {
+    console.log("- Skipping timetable entries re-insert: entries already exist.")
   }
-
-  // Library non-room slots (from II AIML-J sheet)
-  await prisma.entry.create({
-    data: {
-      sourceFileId: sourceFile.id,
-      groupId: group.id,
-      roomId: null,
-      day: 'MON',
-      startTime: periods[2].start,
-      endTime: periods[2].end,
-      subject: 'Central Library Reference Slot (LAB-1)',
-      entryType: 'library',
-      is_mock: false,
-      is_live: true
-    }
-  })
-  await prisma.entry.create({
-    data: {
-      sourceFileId: sourceFile.id,
-      groupId: group.id,
-      roomId: null,
-      day: 'THU',
-      startTime: periods[2].start,
-      endTime: periods[2].end,
-      subject: 'Central Library Slot (LAB-1 LIB)',
-      entryType: 'library',
-      is_mock: false,
-      is_live: true
-    }
-  })
 
   console.log(`Database seeded successfully!`)
   console.log(`- 5 Blocks & floors`)
@@ -336,3 +339,4 @@ main()
   .finally(async () => {
     await prisma.$disconnect()
   })
+

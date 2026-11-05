@@ -4,12 +4,13 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "start": "tsx server/index.ts",
     "dev": "concurrently \"vite\" \"tsx watch server/index.ts\"",
     "dev:frontend": "vite",
     "dev:backend": "tsx watch server/index.ts",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test": "node node_modules/vitest/vitest.mjs run",
+    "test": "vitest run",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
@@ -17,6 +18,12 @@
     "scenario": "tsx scripts/demo-scenario.ts"
   },
   "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/cli": "^8.6.0",
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/preferences": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.4",
     "@prisma/client": "^6.4.1",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",
