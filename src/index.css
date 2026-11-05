@@ -23,6 +23,41 @@
   animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+.cp-hero { background: radial-gradient(circle at 80% 18%, rgba(74, 126, 103, .4), transparent 32%), linear-gradient(125deg, #0d271f 0%, #123e31 48%, #183f36 100%); }
+.cp-hero-glow { position: absolute; inset: auto -10% -50%; height: 26rem; background: radial-gradient(ellipse, rgba(206, 237, 131, .16), transparent 62%); filter: blur(20px); pointer-events: none; }
+.cp-glass-panel { border: 1px solid rgba(255,255,255,.18); border-radius: 24px; background: rgba(255,255,255,.09); backdrop-filter: blur(18px); box-shadow: 0 24px 70px rgba(0,0,0,.18); }
+.cp-metric { border-radius: 14px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.08); padding: 16px; }
+.cp-metric span, .cp-metric small { display: block; font-size: 11px; color: #bad2c1; }
+.cp-metric strong { display: block; margin-top: 16px; font-size: 30px; font-weight: 500; letter-spacing: -.06em; color: white; }
+.cp-primary-button, .cp-ghost-button, .cp-primary-dark { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 12px 17px; font-size: 12px; font-weight: 700; transition: all .2s ease; }
+.cp-primary-button { background: #c96f43; color: white; box-shadow: 0 10px 24px rgba(201,111,67,.22); }
+.cp-primary-button:hover { background: #df8354; transform: translateY(-1px); }
+.cp-ghost-button { border: 1px solid rgba(255,255,255,.22); color: #e5f0e6; background: rgba(255,255,255,.06); }
+.cp-ghost-button:hover { background: rgba(255,255,255,.14); }
+.cp-action-card { display: flex; align-items: center; gap: 14px; border: 1px solid #e1e6e2; border-radius: 18px; background: white; padding: 18px; color: #17211d; box-shadow: 0 8px 25px rgba(23,33,29,.04); transition: all .2s ease; }
+.cp-action-card:hover { transform: translateY(-2px); border-color: #a9c49c; box-shadow: 0 14px 30px rgba(23,33,29,.08); }
+.cp-action-card > svg:first-child { height: 20px; width: 20px; color: #c96f43; }
+.cp-action-card > svg:last-child { margin-left: auto; height: 17px; width: 17px; color: #9aa49d; }
+.cp-action-card span { display: flex; flex-direction: column; gap: 3px; }
+.cp-action-card small { color: #87918a; font-size: 11px; }
+.cp-action-card strong { font-size: 14px; }
+.cp-kicker { color: #b45d37; font-size: 11px; font-weight: 800; letter-spacing: .19em; text-transform: uppercase; }
+.cp-section-title { margin-top: 8px; color: #17211d; font-size: clamp(2rem, 4vw, 3rem); font-weight: 500; letter-spacing: -.06em; line-height: .98; }
+.cp-text-link { display: inline-flex; align-items: center; gap: 5px; color: #b45d37; font-size: 12px; font-weight: 800; }
+.cp-building-card { overflow: hidden; border: 1px solid #e1e6e2; border-radius: 20px; background: white; box-shadow: 0 8px 24px rgba(23,33,29,.05); transition: all .25s ease; }
+.cp-building-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(23,33,29,.11); }
+.cp-feature-grid { display: grid; gap: 36px; border-radius: 24px; background: #e8f0e3; padding: 30px; }
+.cp-primary-dark { background: #183d32; color: white; }
+.cp-primary-dark:hover { background: #285945; }
+.cp-feature-list { display: grid; gap: 11px; }
+.cp-feature-list > div { display: flex; gap: 14px; border-radius: 15px; background: rgba(255,255,255,.66); padding: 17px; }
+.cp-feature-list svg { width: 18px; height: 18px; flex: none; color: #b45d37; }
+.cp-feature-list span { display: flex; flex-direction: column; gap: 5px; }
+.cp-feature-list strong { font-size: 14px; }
+.cp-feature-list small { color: #6f7b72; font-size: 12px; line-height: 1.5; }
+
+@media (min-width: 768px) { .cp-feature-grid { grid-template-columns: 1fr 1fr; padding: 48px; } }
+
 @media print {
   header, footer, nav, aside, .print\:hidden {
     display: none !important;

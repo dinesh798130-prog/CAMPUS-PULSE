@@ -52,7 +52,7 @@ export const Logo: React.FC<LogoProps> = ({
         )}
       </div>
 
-      <div className="flex flex-col">
+      <div className="hidden flex-col sm:flex">
         <div className="flex items-center gap-2">
           <span className={`font-extrabold tracking-tight ${titleSizes[size]} ${lightMode ? 'text-white' : 'text-[#142B4A]'}`}>
             CAMPUS <span className="text-[#2563EB]">PULSE</span>
