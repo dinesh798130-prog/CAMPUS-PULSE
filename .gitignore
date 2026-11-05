@@ -3,3 +3,8 @@ dist/
 .vercel/
 *.tsbuildinfo
 
+.env
+*.db
+*.db-journal
+uploads/
+dist-server/

@@ -1,0 +1,206 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  password     String
+  role         String    // "admin" | "faculty" | "student"
+  name         String
+  facultyId    String?   @unique // links to Faculty if role=faculty
+  faculty      Faculty?  @relation(fields: [facultyId], references: [id])
+  group        String?   // e.g. "II AIML-J" for student
+  is_demo      Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  sessions     Session[]
+  auditLogs    AuditLog[]
+  notifications Notification[]
+  failedLogins FailedLogin[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model FailedLogin {
+  id        String   @id @default(cuid())
+  email     String
+  userId    String?
+  ip        String?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([email, createdAt])
+}
+
+model Block {
+  id    String  @id  // "A", "H", "U", "N", "P"
+  name  String      // "Vignan Bhavan", "H Block", etc.
+  floors Floor[]
+  rooms  Room[]
+}
+
+model Floor {
+  id      String @id  // "A-0", "A-1", etc.
+  blockId String
+  number  Int         // 0=Ground, 1,2,3...
+  label   String      // "Ground", "Floor 1", etc.
+  block   Block  @relation(fields: [blockId], references: [id])
+  rooms   Room[]
+}
+
+model Room {
+  id          String   @id  // room code e.g. "VBFF-1", "N-604"
+  blockId     String
+  floorId     String?
+  floor_num   Int?
+  confidence  String   // "confirmed" | "inferred" | "unknown"
+  is_mock     Boolean  @default(false)
+  block       Block    @relation(fields: [blockId], references: [id])
+  floor       Floor?   @relation(fields: [floorId], references: [id])
+  entries     Entry[]
+  disruptions Disruption[]
+  proposals   Proposal[]
+
+  @@index([blockId])
+}
+
+model Department {
+  id      String    @id @default(cuid())
+  code    String    @unique  // "ACSE", "BT", etc.
+  name    String
+  groups  Group[]
+  faculty Faculty[]
+}
+
+model Group {
+  id           String  @id @default(cuid())
+  name         String  @unique  // "II AIML-J"
+  year         Int     // 2
+  departmentId String
+  section      String  // "J"
+  department   Department @relation(fields: [departmentId], references: [id])
+  entries      Entry[]
+}
+
+model Faculty {
+  id           String  @id @default(cuid())
+  code         String  @unique  // internal code
+  name         String
+  departmentId String?
+  is_mock      Boolean @default(false)
+  department   Department? @relation(fields: [departmentId], references: [id])
+  entries      Entry[]
+  user         User?   // via facultyId on User
+
+  @@index([departmentId])
+}
+
+model SourceFile {
+  id           String   @id @default(cuid())
+  filename     String
+  sha256       String   @unique
+  uploadedAt   DateTime @default(now())
+  committedAt  DateTime?
+  status       String   @default("staged")  // "staged" | "committed"
+  report       String?  // JSON string of import report
+  entries      Entry[]
+}
+
+model Entry {
+  id           String   @id @default(cuid())
+  sourceFileId String?
+  groupId      String?
+  facultyId    String?
+  roomId       String?
+  day          String   // "MON"|"TUE"|"WED"|"THU"|"FRI"|"SAT"
+  startTime    String   // "08:15"
+  endTime      String   // "09:05"
+  subject      String?
+  entryType    String   @default("class")  // "class"|"lab"|"library"
+  is_mock      Boolean  @default(false)
+  is_live      Boolean  @default(false)   // false=staged, true=committed
+  supersededBy String?
+  createdAt    DateTime @default(now())
+  sourceFile   SourceFile? @relation(fields: [sourceFileId], references: [id])
+  group        Group?   @relation(fields: [groupId], references: [id])
+  faculty      Faculty? @relation(fields: [facultyId], references: [id])
+  room         Room?    @relation(fields: [roomId], references: [id])
+  disruptions  Disruption[]
+
+  @@index([roomId, day, startTime])
+  @@index([facultyId, day, startTime])
+  @@index([groupId, day])
+}
+
+model Disruption {
+  id          String   @id @default(cuid())
+  entryId     String?
+  roomId      String?
+  type        String   // "cancellation"|"room_closure"|"faculty_change"
+  reason      String?
+  affectedDay String
+  startTime   String
+  endTime     String
+  status      String   @default("open")  // "open"|"resolved"|"rejected"
+  createdAt   DateTime @default(now())
+  createdBy   String?
+  proposals   Proposal[]
+  entry       Entry?   @relation(fields: [entryId], references: [id])
+  room        Room?    @relation(fields: [roomId], references: [id])
+}
+
+model Proposal {
+  id           String   @id @default(cuid())
+  disruptionId String
+  roomId       String?
+  facultyId    String?
+  newDay       String?
+  newStartTime String?
+  newEndTime   String?
+  rank         Int
+  score        Float
+  status       String   @default("pending")  // "pending"|"approved"|"rejected"|"stale"
+  approvedAt   DateTime?
+  approvedBy   String?
+  createdAt    DateTime @default(now())
+  disruption   Disruption @relation(fields: [disruptionId], references: [id])
+  room         Room?    @relation(fields: [roomId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // "disruption"|"proposal_approved"|"change"
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  detail    String?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+}
