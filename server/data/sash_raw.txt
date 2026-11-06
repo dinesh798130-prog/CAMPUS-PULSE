@@ -1,0 +1,131 @@
+VIGNAN'S FOUNDATION FOR SCIENCE TECHNOLOGY AND RESEARCH
+School of Applied Science & Humanities
+A.Y. :2026-27 Sem: I I. B. Tech Time Table w.e.f. 13.08.2026
+SEC-01( CSE-H) ROOM NO: MOBILE
+MON,"Agentic AI Tools (A- Block V floor-VBFFTF-03)",,BREAK,"BEE LAB (H-Block Ground Floor-VGF-08)",,LUNCH,"LA VBFFTF-03","PC LAB (A- Block V floor-VBFFTF-03)",,
+TUE,"COI VBFFTF-02",,,"EPCS VBFFTF-02",,,"BEEE VBTF-03","ES VBTF-03","LA VBTF-03","PC VBTF-03"
+WED,"ICH VBFF-02",,,"LA VBFF-02","PC VBFF-02",,"UHV VBSF-03",,"EP Lab (A-Block II Floor VBSF-01)",
+THU,,,,"Agentic AI Tools (A- Block V floor-VBFFTF-03)",,,"PC VBFF-04","EP VBFF-04","ICH VBFF-04","LA VBFF-04"
+FRI,,,,"ES VBSF-03",,,"EP VBSF-03","BEEE VBSF-03","SUGS VBSF-03",
+SAT,,,,"PC VBSF-04","LA VBSF-04",,"ES VBSF-04","EPCS VBSF-04",,"EP VBSF-04"
+
+SEC-02( CSE-H) ROOM NO: MOBILE
+MON,"UHV VBFTF-01",,BREAK,"PC VBFTF-01","LA VBFTF-01",LUNCH,"EPCS VBFTF-01",,"SUGS VBFTF-01",
+TUE,"PC LAB (A- Block III floor-VBTF-05 )",,,"PC LAB (A- Block III floor-VBTF-05 )","ICH VBTF-05 ",,"EP VBTF-08","LA VBTF-08","COI VBTF-08","ES VBTF-08"
+WED,,,,"EP VBFF-04",,,"BEE VBFF-04","PC VBFF-04","LA VBFF-04","COI VBFF-04"
+THU,,,,"ES VBSF-05",,,"Agentic AI Tools (A- Block III floor-VBTF-05 )",,"BEE LAB (H-Block Ground Floor-VGF-03)",
+FRI,"EPCS VBFF-02",,,"LA VBFF-02",,,"PC VBFF-02",,"EP Lab (A-Block II Floor VBSF-01)",
+SAT,"Agentic AI Tools (A- Block III floor-VBTF-05 )",,,"ES VBFF-02","BEEE VBFF-02",,"PC VBFF-02","EP VBFF-02","ICH VBFF-02","LA VBFF-02"
+
+SEC-03( CSE-H) ROOM NO: MOBILE
+MON,,,BREAK,"EPCS VBFFTF-01",,LUNCH,"PC VBFFTF-01","ES VBFFTF-01",,"LA VBFFTF-01"
+TUE,,,,"LA VBFF-04","ES VBFF-04",,"EP VBFF-04","PC VBFF-04","BEEE VBFF-04","COI VBFF-04"
+WED,"Agentic AI Tools (A- Block III floor-VBTF-05 )",,,,"ICH VBSF-05",,,"ICH VBSF-05","SUGS VBSF-05",
+THU,"PC LAB (A- Block III floor-VBTF-05 )",,,"PC LAB (A- Block III floor-VBTF-05 )","LA VBTF-05",,"EP Lab (A-Block II Floor VBSF-01)",,"Agentic AI Tools (A- Block III floor-VBTF-05 )",
+FRI,,"LA VBSF-05",,"EP VBFTF-1","COI VBFTF-1",,"ES VBFTF-1","PC VBFTF-1","BEE LAB (H-Block Ground Floor-VGF-08)",
+SAT,"UHV VBTF-06",,,"PC VBTF-06","BEEE VBTF-06",,"EP VBTF-07","LA VBTF-07","EPCS VBTF-07",
+
+SEC-04( CSE-H) ROOM NO: MOBILE
+MON,"Agentic AI Tools (H- Block II floor--VSF-16)",,BREAK,"EP Lab (A-Block II Floor VBSF-01)",,LUNCH,"COI VBSF-05","EPCS VBSF-05",,"LA VBSF-05"
+TUE,,"EP VBSF-03",,"ES VBTF-04",,,"LA VSF-16","PC LAB (H- Block II floor--VSF-16)",,
+WED,,,,"BEE LAB (H-Block Ground Floor-VGF-08)",,,"PC VBSF-02","LA VBSF-02","SUGS VBSF-02",
+THU,,"ICH VBTF-08",,"Agentic AI Tools (H- Block II floor--VSF-16)",,,"BEEE VBFF-02","PC VBFF-02","EP VBFF-02","ES VBFF-02"
+FRI,"EP VBSF-03",,,"UHV VBSF-05",,,"LA VBSF-05","PC VBSF-05","COI VBSF-05",
+SAT,"EPCS VBTF-08",,,"LA VBSF-05","PC VBSF-05",,"BEEE VBFTF-01","ICH VBFTF-01","ES VBFTF-01",
+
+SEC-05( CSE-H) ROOM NO: MOBILE
+MON,"Agentic AI Tools (A- Block III floor-VBTF-05 )",,BREAK,"PC VBSF-02","LA VBSF-02",LUNCH,"EP Lab (A-Block II Floor VBSF-01)",,"UHV VBFFTF-02",
+TUE,,,,"LA VBSF-03","ES VBSF-03",,"ICH VBSF-02","EPCS VBSF-02",,"BEEE VBSF-02"
+WED,,,,"SUGS VBSF-04",,,"EP VBSF-04","PC VBSF-04","COI VBSF-04","LA VBSF-04"
+THU,,,,"PC VBFF-03","ICH VBFF-03",,"ES VBFFTF-01",,"LA VBFFTF-01","EP VBFFTF-01"
+FRI,"PC LAB (A- Block III floor-VBTF-05 )",,,"PC LAB (A- Block III floor-VBTF-05 )","ES VBTF-05",,"LA VBFTF-02",,"BEE LAB (H-Block Ground Floor-VGF-03)",
+SAT,"ES VBFF-02",,,"BEEE VBFFTF-02","EP VBFFTF-02",,"Agentic AI Tools (A- Block III floor-VBTF-05 )",,"PC VBSF-03","COI VBSF-03"
+
+SEC-06( CSE-H) ROOM NO: MOBILE
+MON,"EP Lab (A-Block II Floor VBSF-01)",,BREAK,,"LA VBFF-03",LUNCH,"BEEE VBTF-01","PC VBTF-01","ES VBTF-01","COI VBTF-01"
+TUE,,,,"Agentic AI Tools (A- Block IV floor-VBFTF-02)",,,"EP VBTF-06",,"SUGS VBFF-02",
+WED,"BEE LAB (H-Block Ground Floor-VGF-03)",,,"ES VBFF-03",,,"PC VBTF-08","LA VBTF-08","EPCS VBTF-08",
+THU,,,,"LA VBTF-04","PC VBTF-04",,"ICH VBFTF-02","PC LAB (A- Block IV floor-VBFTF-02)",,
+FRI,,"ICH VBTF-07",,"EP VBTF-07","LA VBTF-07",,"PC VBTF-01","UHV VBTF-01",,"BEEE VBTF-01"
+SAT,"Agentic AI Tools (A- Block IV floor-VBFTF-02)",,,"ES VBFF-04","COI VBFF-04",,"EPCS VSF-16",,"EP VSF-16","LA VSF-16"
+
+SEC-07( CSE-H) ROOM NO: MOBILE
+MON,"Agentic AI Tools (A- Block IV floor-VBFTF-02)",,BREAK,,,LUNCH,"EP VBTF-06","LA VBTF-06","PC VBTF-06","COI VBTF-06"
+TUE,"ES VBFFTF-01",,,"EP VBFFTF-01","COI VBFFTF-01",,,"PC VBTF-04","ICH VBTF-04","LA VBTF-04"
+WED,"BEE LAB (H-Block Ground Floor-VGF-08)",,,"EP VBTF-04","LA VBTF-04",,"ICH VBFTF-02","PC VBFTF-02","EPCS VBFTF-02",
+THU,"BEE VBFF-04","ES VBFF-04",,,"PC VBFFTF-01",,"EPCS VBTF-04",,"LA VBTF-04","ES VBTF-04"
+FRI,"SUGS VBTF-04",,,"LA VBTF-03",,,"BEEE VBTF-04","PC LAB (A- Block IV floor-VBFTF-02)",,
+SAT,,,,"Agentic AI Tools (A- Block IV floor-VBFTF-02)",,,"EP Lab (A-Block II Floor VBSF-01)",,"UHV VBFF-01",
+
+SEC-08( CSE-H) ROOM NO: VBFFTF01
+MON,ICH,,BREAK,"Agentic AI Tools (A- Block IV floor-VBFTF-02)",,LUNCH,"LA VBFTF-02","PC LAB (A- Block IV floor-VBFTF-02)",,
+TUE,,,,"PC VBFF-03",,,BEEE,ES,LA,EP
+WED,PC,,,SUGS,,,"EP Lab (A-Block II Floor VBSF-01)",,COI,LA
+THU,"Agentic AI Tools (A- Block IV floor-VBFTF-02)",,,EP,,,"BEE LAB (H-Block Ground Floor-VGF-08)",,"EPCS NB219",
+FRI,,,,COI,LA,,PC,EP,"ES",
+SAT,UHV,,,LA,BEEE,,"EPCS",,ES,PC
+
+SEC-09( CSE-H) ROOM NO: VBFFTF-02
+MON,,"PC VBSF-04",,LA,,LUNCH,BEEE,EP,EPCS,
+TUE,,,,"BEE LAB (H-Block Ground Floor-VGF-03)",,,LA,COI,EP,PC
+WED,,,,SUGS,,,"ES VBFFTF-01",,LA,BEEE
+THU,"EP Lab (A-Block II Floor VBSF-01)",,,"ES",,,LA,PC,"Agentic AI Tools (A- Block V floor-VBFFTF-03)"
+FRI,"PC LAB (A- Block V floor-VBFFTF-03",,,"PC LAB (A- Block V floor-VBFFTF-03)","LA VBFFTF-03",,"EPCS",,EP,COI
+SAT,ICH,,,"Agentic AI Tools (A- Block V floor-VBFFTF-03)",,,UHV,,PC,"ES"
+
+SEC-10( CSE-H + D) ROOM NO: VBFTF-01
+MON,,,BREAK,"BEE LAB (H-Block Ground Floor-VGF-03)",,LUNCH,"PC LAB (A- Block IV floor-VBFTF-03)",,,"LA VBFTF-03"
+TUE,ES,PC,,UHV,,,,LA,BEEE,COI
+WED,,,,EP,LA,,"EPCS VBTF-03",,PC,
+THU,PC,,,LA,EP,,"ES",COI,SUGS,
+FRI,"EPCS VBTF-04",,,"EP Lab (A-Block II Floor VBSF-01)",,,"Agentic AI Tools (A- Block IV floor-VBFTF-03)",,LA,ICH
+SAT,ICH,PC,,"ES",,,"EP VBFTF-03","BEEE VBFTF-03","Agentic AI Tools (A- Block IV floor-VBFTF-03)",
+
+SEC-11( CSE-D) ROOM NO: VBTF-01
+MON,"BEE LAB (H-Block Ground Floor-VGF-08)",,BREAK,SUGS,,LUNCH,"PC VBTF-03","ES VBTF-03","Agentic AI Tools (H- Block II floor--VSF-16)",
+TUE,,EP,,PC,,,LA,COI,,ES
+WED,LA,,,UHV,,,,EP,ICH,PC
+THU,"Agentic AI Tools (H- Block II floor--VSF-16)",,,BEEE,PC,,LA,EPCS,,COI
+FRI,"ES",,,LA,BEEE,,"EP VSF-16","PC LAB (H- Block II floor--VSF-16)",,
+SAT,"EP Lab (A-Block II Floor VBSF-01)",,,EPCS,,,ICH,LA,,
+
+SEC-12( CSE-D) ROOM NO: VBTF-03
+MON,ES,,BREAK,EP,PC,LUNCH,"BEEE LAB (H-Block Ground Floor-VGF-03)",,LA,ICH
+TUE,"EP Lab (A-Block II Floor VBSF-01)",,,BEEE,LA,,"PC LAB (A- Block V floor-VBFFTF-03)",,,
+WED,"Agentic AI Tools (A- Block V floor-VBFFTF-03)",,,LA,COI,,,,EP,PC
+THU,COI,PC,,EPCS,,,"Agentic AI Tools (A- Block V floor-VBFFTF-03)",,LA,ICH
+FRI,LA,,,"EP VBTF-08","ES VBTF-08",,BEEE,EPCS,,PC
+SAT,"UHV VPTF-09",,,,ES,,,,SUGS,
+
+SEC-18( ECE-H ) ROOM NO: MOBILE
+MON,"EP VBFFTF-02","BEEE VBFFTF-02",BREAK,"LA VBFFTF-03","ICH VBFFTF-03",LUNCH,"BEE LAB (H-Block Ground Floor-VGF-08)",,"COI NB219",
+TUE,"Agentic AI Tools (A- Block IV floor-VBFTF-02)",,,"DIY VBTF-07",,,"EP VBFTF-01",,"EPCS VBFTF-02",
+WED,"COI VBTF-04","PC VBTF-04",,,"LA VBTF-06",,"EP Lab ( P Block III Floor - VPTF 07&08)",,,
+THU,"ICH VBTF-06","BEEE VBTF-06",,"LA VBTF-06",,,,"PC VBTF-07","EP VBTF-07",
+FRI,"LA VBTF-07",,,"Agentic AI Tools (A- Block IV floor-VBFTF-02)",,,"EPCS VBTF-06",,"UHV VBTF-06",
+SAT,,,,"DTEO VPSF-02",,,,"LA VBSF-03","PC LAB (A- Block IV floor-VBFTF-02)",
+
+SEC-26 (AIML-H) ROOM NO: MOBILE
+MON,,,Break,"PCT VPTF-11",,Lunch,"LA NB202","MS NB202",Sports,,
+TUE,,,,"IKS VPTF-12","EC VPTF-12",,,,"Agentic AI Tools (P- Block- III- Floor-VPTF-03)",,
+WED,,"MS VPTF-11",,"LA VPTF-09","TEC VPTF-09",,,,"Agentic AI Tools (P- Block- III- Floor-VPTF-03)",,
+THU,"PCT LAB (P- Block- III- Floor-VPTF-03)",,,"EG Lab (N-Block I Floor-NB106)",,,"IKS VBTF-03","LA VBTF-03","EC LAB (A- Block I Floor VBFF-01)",,
+FRI,"TEC LAB (P-Block-II Floor-VPSF-05)",,,"PCT LAB (P- Block- III- Floor-VPTF-03)",,,"MS VPTF-11",,"LA VPTF-11",,
+SAT,"EG Lab (N-Block I Floor-NB106)",,,"LA NB-202","PCT NB-202",,"EC NB-202","TEC NB-202","MS NB-202",,
+
+SEC-27 (AIML-H) ROOM NO: MOBILE
+MON,,,BREAK,"LA VPTF-09","IKS VPTF-09",LUNCH,"PCT LAB (P- Block- III- Floor-VPTF-01)",,"MS VPTF-09","TEC VPTF-09"
+TUE,,,,"TEC LAB (P-Block-II Floor-VPSF-05)",,,"Agentic AI Tools (P- Block- III- Floor-VPTF-01)",,"LA VPTF-12","MS VPTF-12"
+WED,,,,"EC LAB (P- Block III floor VPTF-05&06)",,,"PCT VFF-03","MS VFF-03","EG Lab (H-Block III Floor Sravanthi Seminor Hall)",
+THU,,,,"EC VBSF-01","LA VBSF-01",,"PCT LAB (P- Block- III- Floor-VPTF-01)",,,"MS VFF-03"
+FRI,,"PCT VPTF-09",,,"IKS VPTF-09",,"Agentic AI Tools (P- Block- III- Floor-VPTF-01)",,"EC VPTF-09","LA VPTF-09"
+SAT,"LA VPTF-09",,,,"TEC VPTF-09",,"EG Lab (H-Block III Floor Sravanthi Seminor Hall)",,Sports,
+
+SEC-47 (BT-H+D) ROOM NO: MOBILE
+MON,,,BREAK,"EC LAB (P- Block III floor VPTF-05&06)",,LUNCH,"EG Lab (N-Block I -NB106)",,"TEC VPSF-02","EM VPSF-02",,
+TUE,"EM VPTF-09","TEC VPTF-09",,,,,"PC LAB (P- Block- III- Floor-VPTF-03)",,"EG Lab (N-Block I -NB106)",,,
+WED,"Agentic AI Tools (P- Block- III- Floor-VPTF-03)",,,,"PC NB115",,"EM VPTF-12","IKS VPTF-12","TEC LAB (P-Block-II Floor-VPSF-05)",,,
+THU,"EC NB203","EM NB203",,,,,"DTEO VPTF-09",,,,,
+FRI,"PC LAB (P- Block- III- Floor-VPTF-03)",,,,,,,,Sports,,,"EM VPTF-09"
+SAT,"DIY NB203",,,"IKS VBFF-05","PC VBFF-05",,"EC VBSF-05","DTEO VBSF-05",,,,
+

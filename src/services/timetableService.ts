@@ -1,4 +1,5 @@
 import { storageService } from './storageService';
+import { api } from './api';
 import {
   DayOfWeek,
   ResourceAvailabilityItem,
@@ -326,6 +327,38 @@ export const timetableService = {
       availableRoomsCount,
       utilizationPercentage: rooms.length ? Math.round((occupiedRoomsCount / rooms.length) * 100) : 0
     };
+  },
+
+  // API Backend Connectors
+  async fetchAvailabilityNow(at?: string) {
+    return api.get<{ day: string; time: string; rooms: any[] }>('/api/availability/now', {
+      params: at ? { at } : undefined
+    });
+  },
+
+  async fetchAvailabilitySearch(params: {
+    day: string;
+    from: string;
+    to: string;
+    block?: string;
+    type?: string;
+  }) {
+    return api.get<{ day: string; from: string; to: string; count: number; rooms: any[] }>(
+      '/api/availability/search',
+      { params }
+    );
+  },
+
+  async fetchRoomTimetable(roomId: string) {
+    return api.get<{ room: any; entries: any[] }>(`/api/rooms/${roomId}/timetable`);
+  },
+
+  async fetchGroupTimetable(groupId: string) {
+    return api.get<{ group: any; entries: any[] }>(`/api/groups/${groupId}/timetable`);
+  },
+
+  async fetchFacultyTimetable(facultyId: string) {
+    return api.get<{ faculty: any; entries: any[] }>(`/api/faculty/${facultyId}/timetable`);
   }
 };
 

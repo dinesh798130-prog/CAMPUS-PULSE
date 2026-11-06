@@ -1,0 +1,2952 @@
+{
+  "departments": [
+    {
+      "id": "dept-ece",
+      "code": "ECE",
+      "name": "Department of Electronics and Communication Engineering"
+    },
+    {
+      "id": "dept-sash",
+      "code": "SASH",
+      "name": "School of Applied Science & Humanities"
+    },
+    {
+      "id": "dept-cse",
+      "code": "CSE",
+      "name": "Department of Computer Science and Engineering"
+    },
+    {
+      "id": "dept-acse",
+      "code": "ACSE",
+      "name": "Advanced Computer Science and Engineering"
+    },
+    {
+      "id": "dept-bi",
+      "code": "BIOINFO",
+      "name": "Department of Bioinformatics"
+    }
+  ],
+  "groups": [
+    {
+      "id": "group-ece-sec-a",
+      "name": "II ECE SEC-A",
+      "year": 2,
+      "departmentCode": "ECE",
+      "section": "SEC-A"
+    },
+    {
+      "id": "group-ece-sec-b",
+      "name": "II ECE SEC-B",
+      "year": 2,
+      "departmentCode": "ECE",
+      "section": "SEC-B"
+    },
+    {
+      "id": "group-ece-sec-c",
+      "name": "II ECE SEC-C",
+      "year": 2,
+      "departmentCode": "ECE",
+      "section": "SEC-C"
+    },
+    {
+      "id": "group-ece-sec-d",
+      "name": "II ECE SEC-D",
+      "year": 2,
+      "departmentCode": "ECE",
+      "section": "SEC-D"
+    },
+    {
+      "id": "group-ece-sec-e",
+      "name": "II ECE SEC-E",
+      "year": 2,
+      "departmentCode": "ECE",
+      "section": "SEC-E"
+    },
+    {
+      "id": "group-ece-sec-vlsi",
+      "name": "II ECE SEC-VLSI",
+      "year": 2,
+      "departmentCode": "ECE",
+      "section": "SEC-VLSI"
+    }
+  ],
+  "rooms": [
+    "VFS03",
+    "VSF01",
+    "VTF16",
+    "VTF08",
+    "VTF17",
+    "VSF04",
+    "VFS02",
+    "VTF03",
+    "VSF03",
+    "VTF06",
+    "VTF10",
+    "VSF18",
+    "VSF02",
+    "VSF19"
+  ],
+  "faculty": {},
+  "entries": [
+    {
+      "group": "II ECE SEC-A",
+      "day": "MON",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "Trainer - 1 VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "MON",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "Trainer - 1 VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "MON",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "DE-P-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "MON",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "DE-P-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "MON",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "PTSP-L-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "MON",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "NT-T-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "MON",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "NT-T-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "MON",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "SS-L-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "TUE",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "SPD-P-VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "TUE",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "SPD-P-VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "TUE",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "SPD-L-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "TUE",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "NT-L-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "TUE",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "DS-L-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "TUE",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "PTSP-T-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "TUE",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "PTSP-T-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "TUE",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "SPD-L-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "WED",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "PTSP-L-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "WED",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "DE-L-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "WED",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "SS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "WED",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "SS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "WED",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "NT-L-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "WED",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "DTE-T-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "WED",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "DTE-T-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "WED",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "DE-L-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "THU",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "SPD-L-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "THU",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "SS-L-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "THU",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "PTSP-L-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "THU",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "DS-L-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "THU",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "NT-L-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "THU",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "DE-T-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "THU",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "DE-T-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "THU",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "NT--L-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "FRI",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "DS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "FRI",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "DS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "FRI",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "Trainer - 1 VSF-01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "FRI",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "Trainer - 1 VSF-01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "FRI",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "DE-L-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "FRI",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "SS-T-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "FRI",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "SS-T-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "FRI",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "COUNSELLING",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "SAT",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "AAIT-P-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "SAT",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "AAIT-P-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "SAT",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "SS-L-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "SAT",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "DS-L-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "SAT",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "LIBRARY",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "SAT",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "Trainer-1 VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-A",
+      "day": "SAT",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "Trainer-1 VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "MON",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "PTRP-L-VTF10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "MON",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "NT-L-VTF10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "MON",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "SPD-P-VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "MON",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "SPD-P-VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "MON",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "DS-L-VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "MON",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "DE-T-VTF16",
+      "room": "VTF16",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "MON",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "DE-T-VTF16",
+      "room": "VTF16",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "MON",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "SPD-L-VTF16",
+      "room": "VTF16",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "TUE",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "DE-P-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "TUE",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "DE-P-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "TUE",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "PTRP-L-VTF10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "TUE",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "SPD-L-VTF10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "TUE",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "SS-L-VTF10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "TUE",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "Trainer - 1 VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "TUE",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "Trainer - 1 VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "TUE",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "DE-L-VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "WED",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "SS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "WED",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "SS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "WED",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "DE-L-VTF10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "WED",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "NT-L-VTF10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "WED",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "DS-L-VTF10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "WED",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "AAIT-P-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "WED",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "AAIT-P-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "WED",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "NT-L-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "THU",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "Trainer - 1 VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "THU",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "Trainer - 1 VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "THU",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "DS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "THU",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "DS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "THU",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "SS-L-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "THU",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "PTRP-T-VTF10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "THU",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "PTRP-T-VTF10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "THU",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "SS-L-VTF10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "FRI",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "DE-L-VTF10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "FRI",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "PTRP-L-VTF10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "FRI",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "SPD-L-VTF10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "FRI",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "DTE-P-VTF10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "FRI",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "DTE-P-VTF10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "FRI",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "NT-T-VTF10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "FRI",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "NT-T-VTF10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "FRI",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "COUNSELLING",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "SAT",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "SS-T-VTF10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "SAT",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "SS-T-VTF10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "SAT",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "Trainer-1 VTF-08",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "SAT",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "NT-L-VTF08",
+      "room": "VTF08",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "SAT",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "DS-L-VSF-10",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "SAT",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "LIBRARY",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-B",
+      "day": "SAT",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "LIBRARY",
+      "room": "VTF10",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "MON",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "PTRP-L-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "MON",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "DE-L-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "MON",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "DS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "MON",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "DS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "MON",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "LIBRARY",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "MON",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "II-NT-T-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "MON",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "II-NT-T-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "MON",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "SPD-L-VFS02",
+      "room": "VFS02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "TUE",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "NT-L-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "TUE",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "PTRP-L-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "TUE",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "Trainer - 1 VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "TUE",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "Trainer - 1 VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "TUE",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "DE-L-VSF-19",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "TUE",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "AAIT-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "TUE",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "AAIT-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "TUE",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "DS-L-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "WED",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "SPD-P-VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "WED",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "SPD-P-VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "WED",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "Trainer - 1 VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "WED",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "Trainer - 1 VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "WED",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "NT-L-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "WED",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "SS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "WED",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "SS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "WED",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "PTRP-L-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "THU",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "SPD-L-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "THU",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "SS-L-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "THU",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "DE-P-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "THU",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "DE-P-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "THU",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "DS-L-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "THU",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "PTRP-T-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "THU",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "PTRP-T-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "THU",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "SS-L-VFS02",
+      "room": "VFS02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "FRI",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "DS-L-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "FRI",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "SPD-L-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "FRI",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "DE-T-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "FRI",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "DE-T-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "FRI",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "NT-L-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "FRI",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "SS-T-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "FRI",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "SS-T-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "FRI",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "COUNSELLING",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "SAT",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "Trainer - 1 VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "SAT",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "Trainer - 1 VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "SAT",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "SS-L-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "SAT",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "PTRP-L-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "SAT",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "LIBRARY",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "SAT",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "DTE-P-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "SAT",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "DTE-P-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-C",
+      "day": "SAT",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "NT-L-VSF02",
+      "room": "VSF02",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "MON",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "DS-L-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "MON",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "SS-L-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "MON",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "Trainer - 1 VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "MON",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "Trainer - 1 VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "MON",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "DE-L-VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "MON",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "DS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "MON",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "DS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "MON",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "DE-L-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "TUE",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "SS-L-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "TUE",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "SPD-L-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "TUE",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "NT-T-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "TUE",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "NT-T-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "TUE",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "DS-L-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "TUE",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "PTRP-L-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "TUE",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "PTRP-L-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "TUE",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "SS-L-VFS03",
+      "room": "VFS03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "WED",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "DE-P-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "WED",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "DE-P-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "WED",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "NT-L-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "WED",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "AAIT-P-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "WED",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "AAIT-P-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "WED",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "SS-T-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "WED",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "SS-T-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "WED",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "SPD-L-VFS03",
+      "room": "VFS03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "THU",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "NT-L-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "THU",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "DE-L-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "THU",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "SPD-P-VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "THU",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "SPD-P-VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "THU",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "PTRP-L-VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "THU",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "Trainer - 1 VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "THU",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "Trainer - 1 VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "THU",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "NT-L-VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "FRI",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "Trainer - 1 VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "FRI",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "Trainer - 1 VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "FRI",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "SS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "FRI",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "SS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "FRI",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "PTRP-L-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "FRI",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "LIBRARY",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "FRI",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "LIBRARY",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "FRI",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "COUNSELLING",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "SAT",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "PTRP-L-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "SAT",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "SPD-L-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "SAT",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "NT-L-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "SAT",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "DTE-T-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "SAT",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "DTE-T-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "SAT",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "DE-T-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "SAT",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "DE-T-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-D",
+      "day": "SAT",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "PTRP-L-VSF03",
+      "room": "VSF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "MON",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "DS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "MON",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "DS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "MON",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "NT-L-VTF03",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "MON",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "SPD-L-VTF03",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "MON",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "PTRP-L-VTF03",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "MON",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "Trainer - 1 VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "MON",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "Trainer - 1 VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "MON",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "DE-L-VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "TUE",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "Trainer - 1 VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "TUE",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "Trainer - 1 VSF19",
+      "room": "VSF19",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "TUE",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "SS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "TUE",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "SS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "TUE",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "DE-L-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "TUE",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "PTRP-T-VTF03",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "TUE",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "PTRP-T-VTF03",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "TUE",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "NT-L-VTF03",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "WED",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "Trainer - 1 VTF03",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "WED",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "Trainer - 1 VTF03",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "WED",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "SPD-L-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "WED",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "NT-L-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "WED",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "DS-L-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "WED",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "SS-T-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "WED",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "SS-T-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "WED",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "SPD-L-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "THU",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "DE-P-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "THU",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "DE-P-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "THU",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "PTRP-L-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "THU",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "NT-T-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "THU",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "NT-T-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "THU",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "AAIT-P-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "THU",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "AAIT-P-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "THU",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "SS-L-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "FRI",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "DE-L-VTF03",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "FRI",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "SS-L-VTF03",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "FRI",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "SPD-P-VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "FRI",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "SPD-P-VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "FRI",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "NT-L-VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "FRI",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "LIBRARY",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "FRI",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "LIBRARY",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "FRI",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "COUNSELLING",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "SAT",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "DS-L-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "SAT",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "SS-L-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "SAT",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "DE-T-VTF03",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "SAT",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "DE-T-VTF03",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "SAT",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "PTRP-L-VTF03",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "SAT",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "DTE-P-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "SAT",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "DTE-P-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-E",
+      "day": "SAT",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "PTRP-L-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "MON",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "PTSP-L-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "MON",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "NT-L-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "MON",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "SPD-L-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "MON",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "DE-T-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "MON",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "DE-T-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "MON",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "SS-T-VTF03",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "MON",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "SS-T-VTF03",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "MON",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "NT-L-VTF03",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "TUE",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "DS-L-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "TUE",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "DE-L-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "TUE",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "SS-L-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "TUE",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "NT-T-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "TUE",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "NT-T-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "TUE",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "DTE-P-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "TUE",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "DTE-P-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "TUE",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "SPD-L-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "WED",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "NT-L-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "WED",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "SPD-L-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "WED",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "SS-P-VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "WED",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "SS-P-VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "WED",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "DS-L-VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "WED",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "Trainer - 1 VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "WED",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "Trainer - 1 VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "WED",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "DS-L-VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "THU",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "SPD-P-VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "THU",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "SPD-P-VSF18",
+      "room": "VSF18",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "THU",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "Trainer - 1 VTF03",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "THU",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "Trainer - 1 VTF03",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "THU",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "PTRP-L-VTF03",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "THU",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "DS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "THU",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "DS-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "THU",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "DE-L-VTF16",
+      "room": "VTF16",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "FRI",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "DE-L-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "FRI",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "NT-L-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "FRI",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "DE-P-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "FRI",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "DE-P-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "FRI",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "PTRP-L-VTF17",
+      "room": "VTF17",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "FRI",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "Trainer - 1 VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "FRI",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "Trainer - 1 VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "FRI",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "COUNSELLING",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "SAT",
+      "startTime": "08:15",
+      "endTime": "09:05",
+      "subject": "AAIT-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "SAT",
+      "startTime": "09:05",
+      "endTime": "09:55",
+      "subject": "AAIT-P-VTF06",
+      "room": "VTF06",
+      "faculty": "ECE Faculty",
+      "entryType": "lab"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "SAT",
+      "startTime": "10:10",
+      "endTime": "11:00",
+      "subject": "PTRP-T-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "SAT",
+      "startTime": "11:00",
+      "endTime": "11:50",
+      "subject": "PTRP-T-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "SAT",
+      "startTime": "11:50",
+      "endTime": "12:40",
+      "subject": "SS-L-VSF04",
+      "room": "VSF04",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "SAT",
+      "startTime": "01:30",
+      "endTime": "02:20",
+      "subject": "LIBRARY",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "SAT",
+      "startTime": "02:20",
+      "endTime": "03:10",
+      "subject": "LIBRARY",
+      "room": "VTF03",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    },
+    {
+      "group": "II ECE SEC-VLSI",
+      "day": "SAT",
+      "startTime": "03:10",
+      "endTime": "04:00",
+      "subject": "PTRLP-L-VSF01",
+      "room": "VSF01",
+      "faculty": "ECE Faculty",
+      "entryType": "class"
+    }
+  ]
+}
