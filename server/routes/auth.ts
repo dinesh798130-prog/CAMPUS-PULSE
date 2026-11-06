@@ -22,6 +22,44 @@ const INVALID_CREDENTIALS_RESPONSE = {
   },
 }
 
+/**
+ * Shapes a user row into the session object the SPA expects. The frontend keys
+ * its dashboards off `identifier`, `sectionId` and `facultyId`, which are not
+ * columns on User, so they are resolved from the linked Faculty/Group here.
+ */
+async function buildSessionUser(user: {
+  id: string
+  email: string
+  name: string
+  role: string
+  group: string | null
+  facultyId: string | null
+}) {
+  const [faculty, group] = await Promise.all([
+    user.facultyId
+      ? prisma.faculty.findUnique({ where: { id: user.facultyId }, select: { code: true, departmentId: true } })
+      : Promise.resolve(null),
+    user.group
+      ? prisma.group.findUnique({ where: { name: user.group }, select: { departmentId: true } })
+      : Promise.resolve(null),
+  ])
+
+  const departmentId = faculty?.departmentId ?? group?.departmentId ?? null
+
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+    group: user.group,
+    facultyId: user.facultyId,
+    // Registration number / faculty code, shown in the UI chrome.
+    identifier: faculty?.code ?? user.group ?? user.email,
+    sectionId: user.group ?? null,
+    departmentId,
+  }
+}
+
 // GET /api/auth/csrf - provides a CSRF token for web clients
 router.get('/csrf', (_req: Request, res: Response) => {
   const csrfToken = generateCsrfToken()
@@ -93,14 +131,7 @@ router.post('/login', loginRateLimit, async (req: Request, res: RateLimitedRespo
 
   // Return user info and bearer token for Android APK / API consumers
   res.json({
-    user: {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      group: user.group,
-      facultyId: user.facultyId,
-    },
+    user: await buildSessionUser(user),
     token,
     expiresAt: expiresAt.toISOString(),
   })
@@ -124,16 +155,7 @@ router.post('/logout', requireAuth, async (req: AuthRequest, res: Response) => {
 // GET /api/auth/me - inspect current authenticated session
 router.get('/me', requireAuth, async (req: AuthRequest, res: Response) => {
   const user = req.user!
-  res.json({
-    user: {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      group: user.group,
-      facultyId: user.facultyId,
-    },
-  })
+  res.json({ user: await buildSessionUser(user) })
 })
 
 export default router

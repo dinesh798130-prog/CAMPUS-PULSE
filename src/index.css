@@ -2,10 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+}
+
 @layer base {
+  html, body {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    overscroll-behavior-y: none;
+  }
+
   body {
     @apply font-sans bg-[#F5F7FB] text-[#1E293B] antialiased;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
+}
+
+/* Mobile safe area utility helpers */
+.safe-top-pad {
+  padding-top: max(env(safe-area-inset-top, 0px), 0px);
+}
+
+.safe-bottom-pad {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
+}
+
+.touch-pan {
+  -webkit-overflow-scrolling: touch;
 }
 
 @keyframes fadeIn {
@@ -69,4 +97,3 @@
     margin: 0 !important;
   }
 }
-

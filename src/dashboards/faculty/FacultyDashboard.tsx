@@ -1,46 +1,81 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Calendar,
-  Clock,
-  BookOpen,
-  MapPin,
-  Users,
-  CheckCircle2,
-  AlertCircle,
+  Printer,
   History,
-  Activity,
-  ArrowRight,
-  Printer
+  AlertCircle,
+  RefreshCw,
+  Loader2
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { storageService } from '../../services/storageService';
-import { timetableService } from '../../services/timetableService';
-import { TimetableEntry, DayOfWeek, TimetableChange } from '../../types';
-import { timeToMinutes, formatTime12h, DAYS_OF_WEEK } from '../../utils/timeUtils';
+import { apiService } from '../../services/apiService';
+import {
+  TimetableEntry,
+  DayOfWeek,
+  TimetableChange,
+  Department,
+  Subject,
+  Room,
+  Building,
+  Section
+} from '../../types';
+import { timeToMinutes, DAYS_OF_WEEK } from '../../utils/timeUtils';
 import { WeeklyTimetableGrid } from '../../components/timetable/WeeklyTimetableGrid';
 import { DailyTimetableList } from '../../components/timetable/DailyTimetableList';
 
 export const FacultyDashboard: React.FC = () => {
   const { session } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [selectedDay, setSelectedDay] = useState<DayOfWeek>('Monday');
   const [simulatedTime, setSimulatedTime] = useState('08:45');
   const [viewMode, setViewMode] = useState<'daily' | 'weekly'>('daily');
+  const [timetableEntries, setTimetableEntries] = useState<TimetableEntry[]>([]);
+  const [changes, setChanges] = useState<TimetableChange[]>([]);
 
-  const facultyId = session?.id || 'fac-1'; // Default Dr. K. Radhakrishna
-  const timetableEntries = timetableService.getFacultySchedule(facultyId);
+  const [, setDepartments] = useState<Department[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [, setBuildings] = useState<Building[]>([]);
+  const [, setSections] = useState<Section[]>([]);
 
-  const departments = storageService.getDepartments();
-  const subjects = storageService.getSubjects();
-  const rooms = storageService.getRooms();
-  const buildings = storageService.getBuildings();
-  const sections = storageService.getSections();
-  const changes = storageService.getChanges();
+  const facultyId = session?.facultyId || session?.id || 'fac-1';
+
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const [depts, subjs, rms, bldgs, secs, chgs, entries] = await Promise.all([
+        apiService.getDepartments(),
+        apiService.getSubjects(),
+        apiService.getRooms(),
+        apiService.getBuildings(),
+        apiService.getSections(),
+        apiService.getChanges().catch(() => []),
+        apiService.getFacultySchedule(facultyId)
+      ]);
+
+      setDepartments(depts);
+      setSubjects(subjs);
+      setRooms(rms);
+      setBuildings(bldgs);
+      setSections(secs);
+      setChanges(chgs);
+      setTimetableEntries(entries);
+    } catch (err: any) {
+      setError(err.message || 'Failed to load faculty schedule from backend API.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [facultyId]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const getSubj = (id: string) => subjects.find(s => s.id === id);
   const getRoom = (id: string) => rooms.find(r => r.id === id);
-  const getBldg = (id: string) => buildings.find(b => b.id === id);
-  const getSec = (id: string) => sections.find(s => s.id === id);
 
   const currentMin = timeToMinutes(simulatedTime);
 
@@ -60,8 +95,37 @@ export const FacultyDashboard: React.FC = () => {
   // Remaining classes today
   const remainingClassesCount = todayClasses.filter(e => timeToMinutes(e.endTime) > currentMin).length;
 
+  if (isLoading) {
+    return (
+      <div className="py-20 flex flex-col items-center justify-center text-center space-y-4">
+        <Loader2 className="w-10 h-10 text-teal-600 animate-spin" />
+        <h2 className="text-lg font-bold text-slate-800">Fetching Faculty Schedule from Backend...</h2>
+        <p className="text-xs text-slate-500 font-mono">GET /api/timetables?facultyId={facultyId}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
+      {/* Backend API Error Banner */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-5 text-red-800 space-y-3">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+            <h3 className="font-bold text-sm">Faculty Schedule API Connection Error</h3>
+          </div>
+          <p className="text-xs text-red-700 font-mono bg-white/70 p-2.5 rounded-lg border border-red-200 break-all">
+            {error}
+          </p>
+          <button
+            onClick={() => loadData()}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
+          >
+            <RefreshCw className="w-3.5 h-3.5" /> Retry Request
+          </button>
+        </div>
+      )}
+
       {/* Faculty Welcome Hero */}
       <div className="bg-gradient-to-r from-[#0F2942] via-[#142B4A] to-[#1E3A5F] text-white rounded-3xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -117,8 +181,8 @@ export const FacultyDashboard: React.FC = () => {
               <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-red-100 text-red-700">
                 Currently Teaching
               </span>
-              <p className="font-extrabold text-slate-900 text-sm mt-1">{getSubj(currentClass.subjectId)?.name}</p>
-              <p className="text-xs text-blue-700 font-mono font-bold">Room {getRoom(currentClass.roomId)?.roomNumber}</p>
+              <p className="font-extrabold text-slate-900 text-sm mt-1">{getSubj(currentClass.subjectId)?.name || currentClass.subjectId}</p>
+              <p className="text-xs text-blue-700 font-mono font-bold">Room {getRoom(currentClass.roomId)?.roomNumber || currentClass.roomId}</p>
             </div>
           ) : (
             <div className="space-y-1">
@@ -150,9 +214,9 @@ export const FacultyDashboard: React.FC = () => {
           </span>
           {nextClass ? (
             <div>
-              <p className="font-bold text-slate-900 text-sm truncate">{getSubj(nextClass.subjectId)?.name}</p>
+              <p className="font-bold text-slate-900 text-sm truncate">{getSubj(nextClass.subjectId)?.name || nextClass.subjectId}</p>
               <p className="text-xs text-slate-500 font-mono mt-0.5">
-                {nextClass.startTime} • Room {getRoom(nextClass.roomId)?.roomNumber}
+                {nextClass.startTime} • Room {getRoom(nextClass.roomId)?.roomNumber || nextClass.roomId}
               </p>
             </div>
           ) : (
@@ -247,7 +311,13 @@ export const FacultyDashboard: React.FC = () => {
           </div>
         </div>
 
-        {viewMode === 'daily' ? (
+        {timetableEntries.length === 0 ? (
+          <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-400">
+            <AlertCircle className="w-12 h-12 mx-auto text-slate-300 mb-2" />
+            <h4 className="text-base font-bold text-slate-700">No Timetable Entries Found</h4>
+            <p className="text-xs text-slate-400 mt-1">Backend returned 0 teaching assignments for faculty {facultyId}.</p>
+          </div>
+        ) : viewMode === 'daily' ? (
           <DailyTimetableList
             entries={timetableEntries}
             day={selectedDay}
@@ -264,4 +334,3 @@ export const FacultyDashboard: React.FC = () => {
     </div>
   );
 };
-

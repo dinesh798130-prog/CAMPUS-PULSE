@@ -1,37 +1,42 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Activity,
   Search,
-  Filter,
   CheckCircle2,
-  Clock,
   AlertCircle,
-  Building2,
   DoorOpen,
   FlaskConical,
   Users,
-  Sparkles,
   Layers,
-  ArrowRight
+  RefreshCw,
+  Loader2
 } from 'lucide-react';
-import { storageService } from '../services/storageService';
-import { timetableService } from '../services/timetableService';
+import { apiService } from '../services/apiService';
 import {
   Building,
   Floor,
   Department,
+  Room,
+  Faculty,
+  TimetableEntry,
   ResourceAvailabilityItem,
   DayOfWeek
 } from '../types';
-import { DAYS_OF_WEEK } from '../utils/timeUtils';
+import { DAYS_OF_WEEK, timeToMinutes, formatTime12h } from '../utils/timeUtils';
 
 export const AvailabilityPage: React.FC = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [floors, setFloors] = useState<Floor[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [faculty, setFaculty] = useState<Faculty[]>([]);
+  const [timetables, setTimetables] = useState<TimetableEntry[]>([]);
 
   // Search & Filter state
   const [selectedDay, setSelectedDay] = useState<DayOfWeek>('Monday');
@@ -48,44 +53,163 @@ export const AvailabilityPage: React.FC = () => {
   // Calculated availability items
   const [results, setResults] = useState<ResourceAvailabilityItem[]>([]);
 
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const [bldgs, flrs, depts, rms, facs, tts] = await Promise.all([
+        apiService.getBuildings(),
+        apiService.getFloors(),
+        apiService.getDepartments(),
+        apiService.getRooms(),
+        apiService.getFaculty(),
+        apiService.getTimetables()
+      ]);
+
+      setBuildings(bldgs);
+      setFloors(flrs);
+      setDepartments(depts);
+      setRooms(rms);
+      setFaculty(facs);
+      setTimetables(tts);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch resource availability data from backend API.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    setBuildings(storageService.getBuildings());
-    setFloors(storageService.getFloors());
-    setDepartments(storageService.getDepartments());
+    loadData();
+  }, [loadData]);
 
-    const initialSearch = searchParams.get('search');
-    if (initialSearch) setSearchQuery(initialSearch);
-
-    const initialType = searchParams.get('resourceType');
-    if (initialType) setResourceType(initialType as any);
-  }, [searchParams]);
-
-  // Recalculate whenever filters change
+  // Calculate live availability whenever filters or backend data changes
   useEffect(() => {
-    const list = timetableService.calculateAvailability({
-      day: selectedDay,
-      startTime,
-      endTime,
-      resourceType,
-      buildingId: selectedBuildingId || undefined,
-      floorId: selectedFloorId || undefined,
-      departmentId: selectedDepartmentId || undefined
-    });
+    if (isLoading || error) return;
+
+    const startMin = timeToMinutes(startTime);
+    const endMin = timeToMinutes(endTime);
+
+    const items: ResourceAvailabilityItem[] = [];
+
+    // Filter rooms
+    const shouldIncludeRooms = resourceType === 'all' || resourceType === 'classrooms' || resourceType === 'laboratories';
+
+    if (shouldIncludeRooms) {
+      rooms.forEach(room => {
+        if (resourceType === 'classrooms' && room.type !== 'classroom' && room.type !== 'seminar_hall') return;
+        if (resourceType === 'laboratories' && room.type !== 'laboratory') return;
+        if (selectedBuildingId && room.buildingId !== selectedBuildingId) return;
+        if (selectedFloorId && room.floorId !== selectedFloorId) return;
+        if (selectedDepartmentId && room.departmentId !== selectedDepartmentId) return;
+
+        const bldg = buildings.find(b => b.id === room.buildingId);
+        const flr = floors.find(f => f.id === room.floorId);
+        const dept = departments.find(d => d.id === room.departmentId);
+
+        // Check overlapping timetables
+        const roomSchedule = timetables.filter(t => t.roomId === room.id && t.day === selectedDay);
+        const overlapping = roomSchedule.find(t => {
+          const tStart = timeToMinutes(t.startTime);
+          const tEnd = timeToMinutes(t.endTime);
+          return Math.max(startMin, tStart) < Math.min(endMin, tEnd);
+        });
+
+        const isOccupied = !!overlapping;
+
+        items.push({
+          id: room.id,
+          name: room.name,
+          code: room.roomNumber,
+          type: room.type === 'laboratory' ? 'laboratory' : 'classroom',
+          status: isOccupied ? 'occupied' : 'available',
+          buildingName: bldg?.name,
+          floorName: flr?.name,
+          departmentName: dept?.name || 'General Academic',
+          currentActivity: isOccupied && overlapping ? {
+            subjectName: overlapping.subjectId,
+            facultyName: overlapping.facultyId,
+            sectionName: overlapping.sectionId,
+            startTime: overlapping.startTime,
+            endTime: overlapping.endTime
+          } : undefined,
+          nextAvailableTime: isOccupied && overlapping ? formatTime12h(overlapping.endTime) : 'Immediate'
+        });
+      });
+    }
+
+    // Filter faculty
+    const shouldIncludeFaculty = resourceType === 'all' || resourceType === 'faculty';
+    if (shouldIncludeFaculty && !selectedBuildingId && !selectedFloorId) {
+      faculty.forEach(fac => {
+        if (selectedDepartmentId && fac.departmentId !== selectedDepartmentId) return;
+
+        const dept = departments.find(d => d.id === fac.departmentId);
+        const facSchedule = timetables.filter(t => t.facultyId === fac.id && t.day === selectedDay);
+        const overlapping = facSchedule.find(t => {
+          const tStart = timeToMinutes(t.startTime);
+          const tEnd = timeToMinutes(t.endTime);
+          return Math.max(startMin, tStart) < Math.min(endMin, tEnd);
+        });
+
+        const isOccupied = !!overlapping;
+
+        items.push({
+          id: fac.id,
+          name: fac.name,
+          code: fac.designation,
+          type: 'faculty',
+          status: isOccupied ? 'occupied' : 'available',
+          departmentName: dept?.name || fac.departmentId,
+          currentActivity: isOccupied && overlapping ? {
+            subjectName: overlapping.subjectId,
+            facultyName: fac.name,
+            sectionName: overlapping.sectionId,
+            startTime: overlapping.startTime,
+            endTime: overlapping.endTime
+          } : undefined,
+          nextAvailableTime: isOccupied && overlapping ? formatTime12h(overlapping.endTime) : 'Immediate'
+        });
+      });
+    }
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      setResults(list.filter(item => item.name.toLowerCase().includes(q) || item.code.toLowerCase().includes(q)));
+      setResults(items.filter(item => item.name.toLowerCase().includes(q) || item.code.toLowerCase().includes(q)));
     } else {
-      setResults(list);
+      setResults(items);
     }
-  }, [selectedDay, startTime, endTime, resourceType, selectedBuildingId, selectedFloorId, selectedDepartmentId, searchQuery]);
-
-  const filteredFloors = selectedBuildingId
-    ? floors.filter(f => f.buildingId === selectedBuildingId)
-    : floors;
+  }, [
+    isLoading,
+    error,
+    rooms,
+    faculty,
+    buildings,
+    floors,
+    departments,
+    timetables,
+    selectedDay,
+    startTime,
+    endTime,
+    resourceType,
+    selectedBuildingId,
+    selectedFloorId,
+    selectedDepartmentId,
+    searchQuery
+  ]);
 
   const availableCount = results.filter(r => r.status === 'available').length;
   const occupiedCount = results.filter(r => r.status === 'occupied').length;
+
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex flex-col items-center justify-center text-center space-y-4">
+        <Loader2 className="w-10 h-10 text-teal-600 animate-spin" />
+        <h2 className="text-lg font-bold text-slate-800">Calculating Campus Resource Availability...</h2>
+        <p className="text-xs text-slate-500 font-mono">GET /api/buildings, /api/rooms, /api/timetables</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -93,15 +217,34 @@ export const AvailabilityPage: React.FC = () => {
       <div className="border-b border-slate-200 pb-5">
         <div className="flex items-center gap-2 text-xs font-bold text-teal-600 uppercase tracking-widest">
           <Activity className="w-4 h-4" />
-          <span>Hackathon Core Engine • Smart Availability Platform</span>
+          <span>Smart Availability Platform • Backend Integrated</span>
         </div>
         <h1 className="text-3xl font-extrabold text-[#142B4A] mt-1">
           Smart Campus Resource Availability
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl">
-          Instantly query occupied and vacant classrooms, computer laboratories, and faculty members based on academic timetables for any chosen day and time interval.
+          Real-time query of occupied and vacant classrooms, computer laboratories, and faculty members based on academic timetables.
         </p>
       </div>
+
+      {/* Backend Error Banner */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-5 text-red-800 space-y-3">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+            <h3 className="font-bold text-sm">Backend API Availability Query Failed</h3>
+          </div>
+          <p className="text-xs text-red-700 font-mono bg-white/70 p-2.5 rounded-lg border border-red-200 break-all">
+            {error}
+          </p>
+          <button
+            onClick={() => loadData()}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
+          >
+            <RefreshCw className="w-3.5 h-3.5" /> Retry Request
+          </button>
+        </div>
+      )}
 
       {/* FILTER CONTROLS CARD */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
@@ -335,4 +478,3 @@ export const AvailabilityPage: React.FC = () => {
     </div>
   );
 };
-

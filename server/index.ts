@@ -13,7 +13,8 @@ import adminRoutes from './routes/admin.js'
 import assistantRoutes from './routes/assistant.js'
 
 const app = express()
-const PORT = process.env.PORT || 3001
+const HOST = process.env.HOST || '0.0.0.0'
+const PORT = Number(process.env.PORT) || 3001
 
 // 1. CORS Configuration
 const envOrigins = (process.env.ALLOWED_ORIGINS || '')
@@ -25,7 +26,11 @@ const defaultOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
   'http://127.0.0.1:5173',
+  'https://campus-pulse-two-gilt.vercel.app',
+  'https://campus-pulse-vignan.vercel.app',
   'https://localhost', // Capacitor Android WebView origin
+  'capacitor://localhost',
+  'http://localhost',
 ]
 
 const allowedOrigins = Array.from(new Set([...envOrigins, ...defaultOrigins]))
@@ -35,7 +40,11 @@ app.use(
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps, curl, or server-to-server)
       if (!origin) return callback(null, true)
-      if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+      if (
+        allowedOrigins.includes(origin) ||
+        allowedOrigins.includes('*') ||
+        origin.endsWith('.vercel.app')
+      ) {
         return callback(null, true)
       }
       return callback(null, false)
@@ -101,19 +110,26 @@ app.get('/api/docs', (_req, res) => {
 })
 
 // 4. Health Check
-app.get('/api/health', (_req, res) => {
+const sendHealth = (_req: express.Request, res: express.Response) => {
   res.json({
     status: 'ok',
+    service: 'campuspulse-backend',
     version: '1.0.0',
     time: new Date().toISOString(),
   })
-})
+}
+
+app.get('/api/health', sendHealth)
+app.get('/health', sendHealth)
 
 // 5. Application Feature Routes
 app.use('/api/auth', authRoutes)
+// Mount the self-scoped faculty routes before the public router. The public
+// router owns GET /api/faculty/:id/timetable, which would otherwise capture
+// GET /api/faculty/me/timetable and answer 404 for faculty id "me".
+app.use('/api/faculty/me', facultyRoutes)
 app.use('/api', publicRoutes)
 app.use('/api/me', studentRoutes)
-app.use('/api/faculty/me', facultyRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/assistant', assistantRoutes)
 
@@ -139,7 +155,7 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 })
 
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
+  app.listen(PORT, HOST, () => {
     log('info', `CampusPulse backend online on port ${PORT}`, {
       docs: `http://localhost:${PORT}/api/docs`,
       openapi: `http://localhost:${PORT}/api/openapi.json`,

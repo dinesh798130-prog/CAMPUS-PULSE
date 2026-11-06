@@ -1,48 +1,85 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Calendar,
   Clock,
-  BookOpen,
   MapPin,
   User,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
   ArrowRight,
   Printer,
   Compass,
   Activity,
-  Layers
+  RefreshCw,
+  Loader2
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { storageService } from '../../services/storageService';
-import { timetableService } from '../../services/timetableService';
-import { TimetableEntry, DayOfWeek } from '../../types';
-import { timeToMinutes, formatTime12h, DAYS_OF_WEEK } from '../../utils/timeUtils';
+import { apiService } from '../../services/apiService';
+import {
+  TimetableEntry,
+  DayOfWeek,
+  Department,
+  Section,
+  Subject,
+  Faculty,
+  Room,
+  Building
+} from '../../types';
+import { timeToMinutes, DAYS_OF_WEEK } from '../../utils/timeUtils';
 import { WeeklyTimetableGrid } from '../../components/timetable/WeeklyTimetableGrid';
 import { DailyTimetableList } from '../../components/timetable/DailyTimetableList';
 
 export const StudentDashboard: React.FC = () => {
   const { session } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [selectedDay, setSelectedDay] = useState<DayOfWeek>('Monday');
   const [simulatedTime, setSimulatedTime] = useState('10:00');
   const [viewMode, setViewMode] = useState<'daily' | 'weekly'>('daily');
   const [timetableEntries, setTimetableEntries] = useState<TimetableEntry[]>([]);
 
-  const sectionId = session?.sectionId || 'sec-cse-3a';
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [, setSections] = useState<Section[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [faculty, setFaculty] = useState<Faculty[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [buildings, setBuildings] = useState<Building[]>([]);
 
-  useEffect(() => {
-    const entries = timetableService.getStudentSchedule(sectionId);
-    setTimetableEntries(entries);
+  const sectionId = session?.sectionId || session?.group || 'sec-cse-3a';
+
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const [depts, secs, subjs, facs, rms, bldgs, entries] = await Promise.all([
+        apiService.getDepartments(),
+        apiService.getSections(),
+        apiService.getSubjects(),
+        apiService.getFaculty(),
+        apiService.getRooms(),
+        apiService.getBuildings(),
+        apiService.getStudentSchedule(sectionId)
+      ]);
+
+      setDepartments(depts);
+      setSections(secs);
+      setSubjects(subjs);
+      setFaculty(facs);
+      setRooms(rms);
+      setBuildings(bldgs);
+      setTimetableEntries(entries);
+    } catch (err: any) {
+      setError(err.message || 'Failed to load student schedule from backend API.');
+    } finally {
+      setIsLoading(false);
+    }
   }, [sectionId]);
 
-  const departments = storageService.getDepartments();
-  const sections = storageService.getSections();
-  const subjects = storageService.getSubjects();
-  const faculty = storageService.getFaculty();
-  const rooms = storageService.getRooms();
-  const buildings = storageService.getBuildings();
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const getSubj = (id: string) => subjects.find(s => s.id === id);
   const getFac = (id: string) => faculty.find(f => f.id === id);
@@ -65,15 +102,44 @@ export const StudentDashboard: React.FC = () => {
   // Next class
   const nextClass = todayClasses.find(e => timeToMinutes(e.startTime) > currentMin);
 
+  if (isLoading) {
+    return (
+      <div className="py-20 flex flex-col items-center justify-center text-center space-y-4">
+        <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+        <h2 className="text-lg font-bold text-slate-800">Fetching Student Dashboard from Backend...</h2>
+        <p className="text-xs text-slate-500 font-mono">GET /api/timetables?sectionId={sectionId}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
+      {/* Backend API Error Banner */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-5 text-red-800 space-y-3">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+            <h3 className="font-bold text-sm">Backend API Student Schedule Connection Error</h3>
+          </div>
+          <p className="text-xs text-red-700 font-mono bg-white/70 p-2.5 rounded-lg border border-red-200 break-all">
+            {error}
+          </p>
+          <button
+            onClick={() => loadData()}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
+          >
+            <RefreshCw className="w-3.5 h-3.5" /> Retry Request
+          </button>
+        </div>
+      )}
+
       {/* Student Welcome Card */}
       <div className="bg-gradient-to-r from-[#142B4A] via-[#1A3860] to-[#142B4A] text-white rounded-3xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-xs font-semibold text-blue-200 border border-white/10">
               <span className="w-2 h-2 rounded-full bg-teal-400" />
-              <span>Section {session?.sectionId ? 'CSE-3A' : 'CSE-3A'} • Academic Year 2026-2027</span>
+              <span>Section {session?.sectionId || 'CSE-3A'} • Academic Year 2026-2027</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
               Welcome, {session?.name || 'Rahul Sharma'}!
@@ -133,18 +199,18 @@ export const StudentDashboard: React.FC = () => {
             {currentClass ? (
               <div className="space-y-2">
                 <span className="font-mono text-xs font-bold bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                  {getSubj(currentClass.subjectId)?.code}
+                  {getSubj(currentClass.subjectId)?.code || currentClass.subjectId}
                 </span>
                 <h3 className="text-lg font-extrabold text-slate-900 leading-snug">
-                  {getSubj(currentClass.subjectId)?.name}
+                  {getSubj(currentClass.subjectId)?.name || currentClass.subjectId}
                 </h3>
                 <p className="text-xs text-slate-600 flex items-center gap-1.5 pt-1">
                   <User className="w-3.5 h-3.5 text-blue-600" />
-                  <span>{getFac(currentClass.facultyId)?.name}</span>
+                  <span>{getFac(currentClass.facultyId)?.name || currentClass.facultyId}</span>
                 </p>
                 <p className="text-xs font-mono font-bold text-blue-700 flex items-center gap-1.5">
                   <MapPin className="w-3.5 h-3.5 text-blue-500" />
-                  <span>Room {getRoom(currentClass.roomId)?.roomNumber} ({getBldg(currentClass.buildingId)?.originalCode})</span>
+                  <span>Room {getRoom(currentClass.roomId)?.roomNumber || currentClass.roomId} ({getBldg(currentClass.buildingId)?.originalCode || ''})</span>
                 </p>
               </div>
             ) : (
@@ -176,18 +242,18 @@ export const StudentDashboard: React.FC = () => {
             {nextClass ? (
               <div className="space-y-2">
                 <span className="font-mono text-xs font-bold bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                  {getSubj(nextClass.subjectId)?.code}
+                  {getSubj(nextClass.subjectId)?.code || nextClass.subjectId}
                 </span>
                 <h3 className="text-lg font-extrabold text-slate-900 leading-snug">
-                  {getSubj(nextClass.subjectId)?.name}
+                  {getSubj(nextClass.subjectId)?.name || nextClass.subjectId}
                 </h3>
                 <p className="text-xs text-slate-600 flex items-center gap-1.5 pt-1">
                   <User className="w-3.5 h-3.5 text-blue-600" />
-                  <span>{getFac(nextClass.facultyId)?.name}</span>
+                  <span>{getFac(nextClass.facultyId)?.name || nextClass.facultyId}</span>
                 </p>
                 <p className="text-xs font-mono font-bold text-blue-700 flex items-center gap-1.5">
                   <MapPin className="w-3.5 h-3.5 text-blue-500" />
-                  <span>Room {getRoom(nextClass.roomId)?.roomNumber} ({getBldg(nextClass.buildingId)?.originalCode})</span>
+                  <span>Room {getRoom(nextClass.roomId)?.roomNumber || nextClass.roomId} ({getBldg(nextClass.buildingId)?.originalCode || ''})</span>
                 </p>
               </div>
             ) : (
@@ -234,7 +300,7 @@ export const StudentDashboard: React.FC = () => {
               </Link>
 
               <Link
-                to="/student/timetable"
+                to="/public-timetables"
                 className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-purple-50 text-xs font-semibold text-slate-700 hover:text-purple-700 transition-colors"
               >
                 <div className="flex items-center gap-2">
@@ -248,7 +314,7 @@ export const StudentDashboard: React.FC = () => {
 
           <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
             <span>Published by Academic Cell</span>
-            <span className="text-emerald-700 font-bold">Sync Active</span>
+            <span className="text-emerald-700 font-bold">API Connected</span>
           </div>
         </div>
       </div>
@@ -295,7 +361,13 @@ export const StudentDashboard: React.FC = () => {
           </div>
         </div>
 
-        {viewMode === 'daily' ? (
+        {timetableEntries.length === 0 ? (
+          <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-400">
+            <Calendar className="w-12 h-12 mx-auto text-slate-300 mb-2" />
+            <h4 className="text-base font-bold text-slate-700">No Timetable Entries Found</h4>
+            <p className="text-xs text-slate-400 mt-1">Backend returned 0 entries for section {sectionId}.</p>
+          </div>
+        ) : viewMode === 'daily' ? (
           <DailyTimetableList
             entries={timetableEntries}
             day={selectedDay}
@@ -312,4 +384,3 @@ export const StudentDashboard: React.FC = () => {
     </div>
   );
 };
-

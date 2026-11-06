@@ -41,7 +41,7 @@ router.post('/query', async (req: Request, res: Response) => {
 
     if (!hasDay || !hasTime) {
       res.json({
-        status: 'needs_detail',
+        status: 'clarify',
         answer: 'To check room availability, please specify both a day (e.g. MON, TUE) and a time (e.g. 10:00, 14:30).',
         citations: [],
         clarify: ['Day of the week (e.g., Monday)', 'Time of day (e.g., 09:05)']
@@ -174,7 +174,7 @@ router.post('/query', async (req: Request, res: Response) => {
   }
 
   res.json({
-    status: 'needs_detail',
+    status: 'clarify',
     answer: 'Please specify a room, student group (e.g. "II AIML-J"), or a day and time to check timetable availability.',
     citations: [],
     clarify: ['Specify section (e.g. II AIML-J)', 'Specify day & time (e.g. MON 10:05)', 'Specify room code (e.g. N-217)']

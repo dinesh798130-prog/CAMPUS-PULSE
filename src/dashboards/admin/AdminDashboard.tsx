@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Building2,
@@ -9,16 +9,14 @@ import {
   Calendar,
   Activity,
   Plus,
-  ArrowRight,
   TrendingUp,
-  RotateCcw,
-  Sparkles,
   ShieldCheck,
   CheckCircle2,
-  Clock
+  AlertCircle,
+  RefreshCw,
+  Loader2
 } from 'lucide-react';
-import { storageService } from '../../services/storageService';
-import { timetableService } from '../../services/timetableService';
+import { apiService } from '../../services/apiService';
 import { TimetableEntryForm } from '../../components/timetable/TimetableEntryForm';
 import {
   BarChart,
@@ -31,24 +29,69 @@ import {
   Pie,
   Cell
 } from 'recharts';
+import {
+  Building,
+  Floor,
+  Room,
+  Department,
+  Faculty,
+  TimetableEntry
+} from '../../types';
 
 export const AdminDashboard: React.FC = () => {
-  const [metrics, setMetrics] = useState(timetableService.getCampusMetrics());
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [recentTimetables, setRecentTimetables] = useState(storageService.getTimetables().slice(0, 5));
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const update = () => {
-      setMetrics(timetableService.getCampusMetrics());
-      setRecentTimetables(storageService.getTimetables().slice(0, 5));
-    };
-    update();
-    window.addEventListener('campus_pulse_storage_change', update);
-    return () => window.removeEventListener('campus_pulse_storage_change', update);
+  const [buildings, setBuildings] = useState<Building[]>([]);
+  const [floors, setFloors] = useState<Floor[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [faculty, setFaculty] = useState<Faculty[]>([]);
+  const [timetables, setTimetables] = useState<TimetableEntry[]>([]);
+  const [showAddModal, setShowAddModal] = useState(false);
+
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const [bldgs, flrs, rms, depts, facs, tts] = await Promise.all([
+        apiService.getBuildings(),
+        apiService.getFloors(),
+        apiService.getRooms(),
+        apiService.getDepartments(),
+        apiService.getFaculty(),
+        apiService.getTimetables()
+      ]);
+
+      setBuildings(bldgs);
+      setFloors(flrs);
+      setRooms(rms);
+      setDepartments(depts);
+      setFaculty(facs);
+      setTimetables(tts);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch admin metrics from backend API');
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  const departments = storageService.getDepartments();
-  const rooms = storageService.getRooms();
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Derived metrics
+  const totalBuildings = buildings.length;
+  const totalFloors = floors.length;
+  const totalClassrooms = rooms.filter(r => r.type === 'classroom' || r.type === 'seminar_hall').length;
+  const totalLabs = rooms.filter(r => r.type === 'laboratory').length;
+  const totalFaculty = faculty.length;
+  const totalScheduledClasses = timetables.length;
+
+  // Occupied vs available room approximation
+  const activeRoomIds = new Set(timetables.filter(t => t.status === 'published').map(t => t.roomId));
+  const occupiedRoomsCount = rooms.filter(r => activeRoomIds.has(r.id)).length;
+  const availableRoomsCount = Math.max(0, rooms.length - occupiedRoomsCount);
 
   // Prepare chart data
   const deptData = departments.map(d => {
@@ -61,12 +104,41 @@ export const AdminDashboard: React.FC = () => {
   });
 
   const occupancyData = [
-    { name: 'Occupied', value: metrics.occupiedRoomsCount, color: '#DC2626' },
-    { name: 'Available', value: metrics.availableRoomsCount, color: '#16A34A' }
+    { name: 'Occupied', value: occupiedRoomsCount, color: '#DC2626' },
+    { name: 'Available', value: availableRoomsCount, color: '#16A34A' }
   ];
+
+  if (isLoading) {
+    return (
+      <div className="py-20 flex flex-col items-center justify-center text-center space-y-4">
+        <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+        <h2 className="text-lg font-bold text-slate-800">Connecting to Backend Admin Engine...</h2>
+        <p className="text-xs text-slate-500 font-mono">GET /api/buildings, /api/rooms, /api/timetables</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
+      {/* Backend API Error Banner */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-5 text-red-800 space-y-3">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+            <h3 className="font-bold text-sm">Backend API Metric Connection Error</h3>
+          </div>
+          <p className="text-xs text-red-700 font-mono bg-white/70 p-2.5 rounded-lg border border-red-200 break-all">
+            {error}
+          </p>
+          <button
+            onClick={() => loadData()}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
+          >
+            <RefreshCw className="w-3.5 h-3.5" /> Retry Request
+          </button>
+        </div>
+      )}
+
       {/* Admin Command Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
@@ -101,7 +173,7 @@ export const AdminDashboard: React.FC = () => {
             <span className="text-[10px] font-bold uppercase tracking-wider">Campus Blocks</span>
             <Building2 className="w-4 h-4 text-blue-600" />
           </div>
-          <p className="text-2xl sm:text-3xl font-extrabold text-[#142B4A] font-mono">{metrics.totalBuildings}</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-[#142B4A] font-mono">{totalBuildings}</p>
           <Link to="/admin/buildings" className="text-[11px] font-semibold text-blue-600 hover:underline mt-1 block">
             Manage Buildings &rarr;
           </Link>
@@ -113,7 +185,7 @@ export const AdminDashboard: React.FC = () => {
             <span className="text-[10px] font-bold uppercase tracking-wider">Floors Configured</span>
             <Layers className="w-4 h-4 text-indigo-600" />
           </div>
-          <p className="text-2xl sm:text-3xl font-extrabold text-[#142B4A] font-mono">{metrics.totalFloors}</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-[#142B4A] font-mono">{totalFloors}</p>
           <Link to="/admin/floors" className="text-[11px] font-semibold text-indigo-600 hover:underline mt-1 block">
             Configure Blueprints &rarr;
           </Link>
@@ -125,7 +197,7 @@ export const AdminDashboard: React.FC = () => {
             <span className="text-[10px] font-bold uppercase tracking-wider">Classrooms</span>
             <DoorOpen className="w-4 h-4 text-emerald-600" />
           </div>
-          <p className="text-2xl sm:text-3xl font-extrabold text-[#142B4A] font-mono">{metrics.totalClassrooms}</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-[#142B4A] font-mono">{totalClassrooms}</p>
           <Link to="/admin/classrooms" className="text-[11px] font-semibold text-emerald-600 hover:underline mt-1 block">
             Classroom Roster &rarr;
           </Link>
@@ -137,7 +209,7 @@ export const AdminDashboard: React.FC = () => {
             <span className="text-[10px] font-bold uppercase tracking-wider">Laboratories</span>
             <FlaskConical className="w-4 h-4 text-teal-600" />
           </div>
-          <p className="text-2xl sm:text-3xl font-extrabold text-teal-700 font-mono">{metrics.totalLabs}</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-teal-700 font-mono">{totalLabs}</p>
           <Link to="/admin/laboratories" className="text-[11px] font-semibold text-teal-600 hover:underline mt-1 block">
             Lab Inventory &rarr;
           </Link>
@@ -149,7 +221,7 @@ export const AdminDashboard: React.FC = () => {
             <span className="text-[10px] font-bold uppercase tracking-wider">Teaching Faculty</span>
             <Users className="w-4 h-4 text-purple-600" />
           </div>
-          <p className="text-2xl sm:text-3xl font-extrabold text-[#142B4A] font-mono">{metrics.totalFaculty}</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-[#142B4A] font-mono">{totalFaculty}</p>
           <Link to="/admin/faculty" className="text-[11px] font-semibold text-purple-600 hover:underline mt-1 block">
             Faculty Directory &rarr;
           </Link>
@@ -161,7 +233,7 @@ export const AdminDashboard: React.FC = () => {
             <span className="text-[10px] font-bold uppercase tracking-wider">Rooms Occupied</span>
             <Activity className="w-4 h-4 text-red-600" />
           </div>
-          <p className="text-2xl sm:text-3xl font-extrabold text-red-600 font-mono">{metrics.occupiedRoomsCount}</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-red-600 font-mono">{occupiedRoomsCount}</p>
           <span className="text-[11px] text-slate-400">Live timetable match</span>
         </div>
 
@@ -171,7 +243,7 @@ export const AdminDashboard: React.FC = () => {
             <span className="text-[10px] font-bold uppercase tracking-wider">Rooms Available</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           </div>
-          <p className="text-2xl sm:text-3xl font-extrabold text-emerald-600 font-mono">{metrics.availableRoomsCount}</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-emerald-600 font-mono">{availableRoomsCount}</p>
           <span className="text-[11px] text-emerald-700 font-bold">Ready for allocation</span>
         </div>
 
@@ -181,7 +253,7 @@ export const AdminDashboard: React.FC = () => {
             <span className="text-[10px] font-bold uppercase tracking-wider">Published Classes</span>
             <Calendar className="w-4 h-4 text-blue-600" />
           </div>
-          <p className="text-2xl sm:text-3xl font-extrabold text-[#142B4A] font-mono">{metrics.totalScheduledClasses}</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-[#142B4A] font-mono">{totalScheduledClasses}</p>
           <Link to="/admin/timetable" className="text-[11px] font-semibold text-blue-600 hover:underline mt-1 block">
             Timetable Manager &rarr;
           </Link>
@@ -243,11 +315,11 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex items-center justify-around border-t border-slate-100 pt-3 text-xs">
             <div className="flex items-center gap-1.5 font-bold text-red-600">
               <span className="w-3 h-3 rounded-full bg-red-600" />
-              <span>Occupied ({metrics.occupiedRoomsCount})</span>
+              <span>Occupied ({occupiedRoomsCount})</span>
             </div>
             <div className="flex items-center gap-1.5 font-bold text-emerald-600">
               <span className="w-3 h-3 rounded-full bg-emerald-600" />
-              <span>Available ({metrics.availableRoomsCount})</span>
+              <span>Available ({availableRoomsCount})</span>
             </div>
           </div>
         </div>
@@ -297,10 +369,9 @@ export const AdminDashboard: React.FC = () => {
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
         onSaved={() => {
-          setMetrics(timetableService.getCampusMetrics());
+          loadData();
         }}
       />
     </div>
   );
 };
-

@@ -1,40 +1,52 @@
 import { useState, useEffect } from 'react';
-import { authService, UserSession } from '../services/authService';
-import { Role } from '../types';
+import { authService } from '../services/authService';
+import { tokenStorage } from '../services/tokenStorage';
+import { Role, UserSession } from '../types';
 
 export function useAuth() {
   const [session, setSession] = useState<UserSession | null>(authService.getCurrentSession());
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check server session on mount
-    authService.checkServerSession().then(s => setSession(s));
+    // Initialize session from Capacitor Preferences
+    tokenStorage.getSession().then((stored) => {
+      setSession(stored || authService.getCurrentSession());
+      setLoading(false);
+    });
 
-    const handleAuthChange = () => {
-      setSession(authService.getCurrentSession());
+    const handleAuthChange = async () => {
+      const current = await tokenStorage.getSession();
+      setSession(current || authService.getCurrentSession());
     };
+
+    const handleSessionExpired = () => {
+      setSession(null);
+    };
+
     window.addEventListener('campus_pulse_auth_change', handleAuthChange);
+    window.addEventListener('campus_pulse_session_expired', handleSessionExpired);
     return () => {
       window.removeEventListener('campus_pulse_auth_change', handleAuthChange);
+      window.removeEventListener('campus_pulse_session_expired', handleSessionExpired);
     };
   }, []);
 
-  const login = async (email: string, password: string) => {
-    const s = await authService.login(email, password);
-    setSession(s);
-    window.dispatchEvent(new Event('campus_pulse_auth_change'));
-    return s;
+  const login = async (email: string, role: Role, password?: string): Promise<UserSession> => {
+    const userSession = await authService.login(email, role, password);
+    setSession(userSession);
+    return userSession;
   };
 
-  const logout = async () => {
+  const logout = async (): Promise<void> => {
     await authService.logout();
     setSession(null);
-    window.dispatchEvent(new Event('campus_pulse_auth_change'));
   };
 
   return {
     session,
     isAuthenticated: !!session,
-    role: (session?.role || 'public') as Role | 'public',
+    role: session?.role || 'public',
+    loading,
     login,
     logout
   };

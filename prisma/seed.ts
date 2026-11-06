@@ -3,7 +3,13 @@ import bcrypt from 'bcryptjs'
 import dotenv from 'dotenv'
 
 dotenv.config()
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL || 'file:./dev.db'
+    }
+  }
+})
 
 async function main() {
   console.log('Seeding CampusPulse database...')
@@ -123,8 +129,26 @@ async function main() {
     { id: 'VPTF-12', blockId: 'P', floorId: 'P-3', floor_num: 3, confidence: 'inferred' },
   ]
 
+  // Room type and capacity. The repair engine's type and capacity checks only
+  // bite if these are real, so the rooms that carry lab/seminar sessions in the
+  // demo timetable are classified explicitly and everything else defaults to a
+  // standard classroom.
+  const LAB_ROOMS = new Set(['N-617', 'N-618'])
+  const SEMINAR_ROOMS = new Set(['N-514A', 'N-514B'])
+
+  function roomProfile(id: string): { type: string; capacity: number } {
+    if (LAB_ROOMS.has(id)) return { type: 'Laboratory', capacity: 60 }
+    if (SEMINAR_ROOMS.has(id)) return { type: 'Seminar', capacity: 45 }
+    return { type: 'Classroom', capacity: 60 }
+  }
+
   for (const r of confirmedRooms) {
-    await prisma.room.upsert({ where: { id: r.id }, update: {}, create: r })
+    const profile = roomProfile(r.id)
+    await prisma.room.upsert({
+      where: { id: r.id },
+      update: profile,
+      create: { ...r, ...profile }
+    })
   }
 
   // 4. Department: ACSE
@@ -137,8 +161,8 @@ async function main() {
   // 5. Group: II AIML-J (Official demo section)
   const group = await prisma.group.upsert({
     where: { name: 'II AIML-J' },
-    update: {},
-    create: { name: 'II AIML-J', year: 2, section: 'J', departmentId: acse.id }
+    update: { size: 60 },
+    create: { name: 'II AIML-J', year: 2, section: 'J', size: 60, departmentId: acse.id }
   })
 
   // 6. Demo Faculty
@@ -153,14 +177,26 @@ async function main() {
     }
   })
 
-  // 7. Demo Accounts (Passwords read securely from environment)
-  const adminPass = await bcrypt.hash(process.env.ADMIN_SEED_PASSWORD || 'Admin@VFSTR2026', 10)
-  const facultyPass = await bcrypt.hash(process.env.FACULTY_SEED_PASSWORD || 'Faculty@VFSTR2026', 10)
-  const studentPass = await bcrypt.hash(process.env.STUDENT_SEED_PASSWORD || 'Student@VFSTR2026', 10)
+  // 7. Demo Accounts. Passwords must come from the environment; there is no
+  // fallback literal, so a misconfigured deployment fails loudly instead of
+  // shipping a known password.
+  const requireEnv = (name: string): string => {
+    const value = process.env[name]
+    if (!value || value === '<set-in-env>') {
+      throw new Error(
+        `${name} is required. Set ADMIN_SEED_PASSWORD, FACULTY_SEED_PASSWORD and STUDENT_SEED_PASSWORD before seeding.`
+      )
+    }
+    return value
+  }
+
+  const adminPass = await bcrypt.hash(requireEnv('ADMIN_SEED_PASSWORD'), 10)
+  const facultyPass = await bcrypt.hash(requireEnv('FACULTY_SEED_PASSWORD'), 10)
+  const studentPass = await bcrypt.hash(requireEnv('STUDENT_SEED_PASSWORD'), 10)
 
   await prisma.user.upsert({
     where: { email: process.env.ADMIN_SEED_EMAIL || 'admin@vignan.ac.in' },
-    update: { password: adminPass },
+    update: {},
     create: {
       email: process.env.ADMIN_SEED_EMAIL || 'admin@vignan.ac.in',
       password: adminPass,
@@ -172,7 +208,7 @@ async function main() {
 
   await prisma.user.upsert({
     where: { email: process.env.FACULTY_SEED_EMAIL || 'faculty@vignan.ac.in' },
-    update: { password: facultyPass, facultyId: demoFaculty.id },
+    update: { facultyId: demoFaculty.id },
     create: {
       email: process.env.FACULTY_SEED_EMAIL || 'faculty@vignan.ac.in',
       password: facultyPass,
@@ -185,7 +221,7 @@ async function main() {
 
   await prisma.user.upsert({
     where: { email: process.env.STUDENT_SEED_EMAIL || 'student@vignan.ac.in' },
-    update: { password: studentPass, group: 'II AIML-J' },
+    update: {},
     create: {
       email: process.env.STUDENT_SEED_EMAIL || 'student@vignan.ac.in',
       password: studentPass,
@@ -232,8 +268,7 @@ async function main() {
   ]
 
   // 10. Official Real II AIML-J Timetable Entries (w.e.f. 17-08-2026)
-  // Clean all previous seed entries for group
-  await prisma.entry.deleteMany({ where: { groupId: group.id } })
+  const existingEntriesCount = await prisma.entry.count({ where: { groupId: group.id } })
 
   const realAssignments: Array<{ day: string; pIdx: number; room: string; subject: string; type: string }> = [
     // MON: N-217, LAB-1(Library), N-617, N-617
@@ -272,54 +307,58 @@ async function main() {
     { day: 'SAT', pIdx: 4, room: 'N-606', subject: 'Mentorship & Review', type: 'class' },
   ]
 
-  for (const item of realAssignments) {
-    const p = periods[item.pIdx]
+  if (existingEntriesCount === 0) {
+    for (const item of realAssignments) {
+      const p = periods[item.pIdx]
+      await prisma.entry.create({
+        data: {
+          sourceFileId: sourceFile.id,
+          groupId: group.id,
+          roomId: item.room,
+          facultyId: demoFaculty.id,
+          day: item.day,
+          startTime: p.start,
+          endTime: p.end,
+          subject: item.subject,
+          entryType: item.type,
+          is_mock: false,
+          is_live: true
+        }
+      })
+    }
+
+    // Library non-room slots (from II AIML-J sheet)
     await prisma.entry.create({
       data: {
         sourceFileId: sourceFile.id,
         groupId: group.id,
-        roomId: item.room,
-        facultyId: demoFaculty.id,
-        day: item.day,
-        startTime: p.start,
-        endTime: p.end,
-        subject: item.subject,
-        entryType: item.type,
+        roomId: null,
+        day: 'MON',
+        startTime: periods[2].start,
+        endTime: periods[2].end,
+        subject: 'Central Library Reference Slot (LAB-1)',
+        entryType: 'library',
         is_mock: false,
         is_live: true
       }
     })
+    await prisma.entry.create({
+      data: {
+        sourceFileId: sourceFile.id,
+        groupId: group.id,
+        roomId: null,
+        day: 'THU',
+        startTime: periods[2].start,
+        endTime: periods[2].end,
+        subject: 'Central Library Slot (LAB-1 LIB)',
+        entryType: 'library',
+        is_mock: false,
+        is_live: true
+      }
+    })
+  } else {
+    console.log("- Skipping timetable entries re-insert: entries already exist.")
   }
-
-  // Library non-room slots (from II AIML-J sheet)
-  await prisma.entry.create({
-    data: {
-      sourceFileId: sourceFile.id,
-      groupId: group.id,
-      roomId: null,
-      day: 'MON',
-      startTime: periods[2].start,
-      endTime: periods[2].end,
-      subject: 'Central Library Reference Slot (LAB-1)',
-      entryType: 'library',
-      is_mock: false,
-      is_live: true
-    }
-  })
-  await prisma.entry.create({
-    data: {
-      sourceFileId: sourceFile.id,
-      groupId: group.id,
-      roomId: null,
-      day: 'THU',
-      startTime: periods[2].start,
-      endTime: periods[2].end,
-      subject: 'Central Library Slot (LAB-1 LIB)',
-      entryType: 'library',
-      is_mock: false,
-      is_live: true
-    }
-  })
 
   console.log(`Database seeded successfully!`)
   console.log(`- 5 Blocks & floors`)

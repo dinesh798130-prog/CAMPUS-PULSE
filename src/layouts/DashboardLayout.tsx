@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Calendar,
@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { Logo } from '../components/common/Logo';
 import { useAuth } from '../hooks/useAuth';
-import { DemoDataBadge } from '../components/common/DemoDataBadge';
+import { BackendStatusBanner } from '../components/common/BackendStatusBanner';
 import { GlobalSearchModal } from '../components/common/GlobalSearchModal';
 
 interface DashboardLayoutProps {
@@ -35,13 +35,42 @@ interface DashboardLayoutProps {
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ requiredRole }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const { session, logout } = useAuth();
+  const { session, loading, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const role = session?.role || 'admin';
+  // Fall back to the role the route was declared with, never to 'admin'.
+  const role = session?.role || requiredRole || 'public';
+
+  React.useEffect(() => {
+    if (!sidebarOpen) return;
+    const handleHardwareBack = (e: Event) => {
+      e.preventDefault();
+      setSidebarOpen(false);
+    };
+    window.addEventListener('campus_pulse_hardware_back', handleHardwareBack);
+    return () => window.removeEventListener('campus_pulse_hardware_back', handleHardwareBack);
+  }, [sidebarOpen]);
 
   // Navigation configurations based on role
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-slate-400">
+        Loading…
+      </div>
+    );
+  }
+
+  if (!session) {
+    const loginPath = requiredRole ? `/login/${requiredRole}` : '/login';
+    return <Navigate to={loginPath} state={{ from: location.pathname }} replace />;
+  }
+
+  if (requiredRole && session.role !== requiredRole) {
+    return <Navigate to={`/${session.role}/dashboard`} replace />;
+  }
+
   const getNavSections = () => {
     if (role === 'student') {
       return [
@@ -116,7 +145,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ requiredRole }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F5F7FB]">
-      <DemoDataBadge />
+      <BackendStatusBanner />
 
       <div className="flex-1 flex overflow-hidden">
         {/* Desktop Sidebar */}

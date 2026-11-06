@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   X,
   Clock,
@@ -57,6 +57,22 @@ export const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
   const nextSubj = getSubj(statusInfo.nextEntry?.subjectId);
   const nextFaculty = getFac(statusInfo.nextEntry?.facultyId);
   const nextSec = getSec(statusInfo.nextEntry?.sectionId);
+
+  useEffect(() => {
+    const handleHardwareBack = (e: Event) => {
+      e.preventDefault();
+      onClose();
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('campus_pulse_hardware_back', handleHardwareBack);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('campus_pulse_hardware_back', handleHardwareBack);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">

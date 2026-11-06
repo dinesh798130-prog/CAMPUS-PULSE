@@ -1,43 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Calendar,
-  Search,
   Printer,
   Download,
-  Filter,
-  Layers,
-  BookOpen,
-  User,
-  MapPin,
-  Clock,
-  Sparkles,
-  CheckCircle2,
-  Bookmark
+  AlertCircle,
+  RefreshCw,
+  Loader2
 } from 'lucide-react';
-import { storageService } from '../services/storageService';
-import { timetableService } from '../services/timetableService';
+import { apiService } from '../services/apiService';
 import {
   Department,
   AcademicYear,
   Semester,
   Section,
+  Subject,
+  Faculty,
+  Room,
   TimetableEntry,
   DayOfWeek
 } from '../types';
 import { WeeklyTimetableGrid } from '../components/timetable/WeeklyTimetableGrid';
 import { DailyTimetableList } from '../components/timetable/DailyTimetableList';
 import { DAYS_OF_WEEK } from '../utils/timeUtils';
-import { useAuth } from '../hooks/useAuth';
 
 export const PublicTimetablePage: React.FC = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const { session, isAuthenticated } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [departments, setDepartments] = useState<Department[]>([]);
   const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]);
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [sections, setSections] = useState<Section[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [faculty, setFaculty] = useState<Faculty[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
 
   // Selection form
   const [selectedDeptId, setSelectedDeptId] = useState('');
@@ -51,49 +47,83 @@ export const PublicTimetablePage: React.FC = () => {
   const [activeDay, setActiveDay] = useState<DayOfWeek>('Monday');
   const [timetableEntries, setTimetableEntries] = useState<TimetableEntry[]>([]);
   const [hasQueried, setHasQueried] = useState(false);
-  const [savedPreference, setSavedPreference] = useState(false);
+  const [isQuerying, setIsQuerying] = useState(false);
 
-  useEffect(() => {
-    const depts = storageService.getDepartments();
-    const ays = storageService.getAcademicYears();
-    const sems = storageService.getSemesters();
-    const secs = storageService.getSections();
+  const loadInitialData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const [depts, ays, sems, secs, subjs, facs, rms] = await Promise.all([
+        apiService.getDepartments(),
+        apiService.getAcademicYears(),
+        apiService.getSemesters(),
+        apiService.getSections(),
+        apiService.getSubjects(),
+        apiService.getFaculty(),
+        apiService.getRooms()
+      ]);
 
-    setDepartments(depts);
-    setAcademicYears(ays);
-    setSemesters(sems);
-    setSections(secs);
+      setDepartments(depts);
+      setAcademicYears(ays);
+      setSemesters(sems);
+      setSections(secs);
+      setSubjects(subjs);
+      setFaculty(facs);
+      setRooms(rms);
 
-    // Initial default values
-    const defaultDept = depts[0]?.id || '';
-    const defaultAy = ays.find(y => y.isActive)?.id || ays[0]?.id || '';
-    const defaultSem = sems.find(s => s.isActive)?.id || sems[0]?.id || '';
-    const defaultSec = secs.find(s => s.departmentId === defaultDept)?.id || secs[0]?.id || '';
+      // Initial default values
+      const defaultDept = depts[0]?.id || '';
+      const defaultAy = ays.find(y => y.isActive)?.id || ays[0]?.id || '';
+      const defaultSem = sems.find(s => s.isActive)?.id || sems[0]?.id || '';
+      const defaultSec = secs.find(s => s.departmentId === defaultDept)?.id || secs[0]?.id || '';
 
-    setSelectedDeptId(defaultDept);
-    setSelectedYearId(defaultAy);
-    setSelectedSemId(defaultSem);
-    setSelectedSectionId(defaultSec);
+      setSelectedDeptId(defaultDept);
+      setSelectedYearId(defaultAy);
+      setSelectedSemId(defaultSem);
+      setSelectedSectionId(defaultSec);
 
-    // Auto-load default section schedule
-    if (defaultSec) {
-      const results = timetableService.getStudentSchedule(defaultSec);
-      setTimetableEntries(results);
-      setHasQueried(true);
+      // Auto-load default section schedule from backend
+      if (defaultSec) {
+        try {
+          const entries = await apiService.getTimetables({ sectionId: defaultSec });
+          setTimetableEntries(entries);
+          setHasQueried(true);
+        } catch {
+          // If timetable lookup fails, keep entries empty
+          setTimetableEntries([]);
+          setHasQueried(true);
+        }
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to load academic timetable metadata from backend API.');
+    } finally {
+      setIsLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    loadInitialData();
+  }, [loadInitialData]);
 
   const filteredSections = sections.filter(
     s => s.departmentId === selectedDeptId && s.yearOfStudy === Number(selectedYearOfStudy)
   );
 
-  const handleQuery = (e?: React.FormEvent) => {
+  const handleQuery = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!selectedSectionId) return;
 
-    const entries = timetableService.getStudentSchedule(selectedSectionId);
-    setTimetableEntries(entries);
-    setHasQueried(true);
+    setIsQuerying(true);
+    setError(null);
+    try {
+      const entries = await apiService.getTimetables({ sectionId: selectedSectionId });
+      setTimetableEntries(entries);
+      setHasQueried(true);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch timetable for the selected section.');
+    } finally {
+      setIsQuerying(false);
+    }
   };
 
   const handlePrint = () => {
@@ -102,20 +132,17 @@ export const PublicTimetablePage: React.FC = () => {
 
   const handleExportCSV = () => {
     if (timetableEntries.length === 0) return;
-    const subjects = storageService.getSubjects();
-    const faculty = storageService.getFaculty();
-    const rooms = storageService.getRooms();
 
     const headers = ['Day', 'Start Time', 'End Time', 'Subject Code', 'Subject Name', 'Faculty', 'Room', 'Type'];
-    const rows = timetableEntries.map(e => [
-      e.day,
-      e.startTime,
-      e.endTime,
-      subjects.find(s => s.id === e.subjectId)?.code || '',
-      subjects.find(s => s.id === e.subjectId)?.name || '',
-      faculty.find(f => f.id === e.facultyId)?.name || '',
-      rooms.find(r => r.id === e.roomId)?.roomNumber || '',
-      e.isLab ? 'Lab' : 'Theory'
+    const rows = timetableEntries.map(entry => [
+      entry.day,
+      entry.startTime,
+      entry.endTime,
+      subjects.find(s => s.id === entry.subjectId)?.code || '',
+      subjects.find(s => s.id === entry.subjectId)?.name || '',
+      faculty.find(f => f.id === entry.facultyId)?.name || '',
+      rooms.find(r => r.id === entry.roomId)?.roomNumber || '',
+      entry.isLab ? 'Lab' : 'Theory'
     ]);
 
     const csvContent = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n');
@@ -132,6 +159,16 @@ export const PublicTimetablePage: React.FC = () => {
   const activeSemObj = semesters.find(s => s.id === selectedSemId);
   const activeAyObj = academicYears.find(y => y.id === selectedYearId);
 
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex flex-col items-center justify-center text-center space-y-4">
+        <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+        <h2 className="text-lg font-bold text-slate-800">Connecting to Backend Timetable API...</h2>
+        <p className="text-xs text-slate-500 font-mono">GET /api/departments, /api/sections, /api/timetables</p>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header */}
@@ -139,13 +176,13 @@ export const PublicTimetablePage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2 text-xs font-bold text-blue-600 uppercase tracking-widest">
             <Calendar className="w-4 h-4" />
-            <span>Public Timetable Search • No Login Required</span>
+            <span>Public Timetable Search • Backend API Connected</span>
           </div>
           <h1 className="text-3xl font-extrabold text-[#142B4A] mt-1">
             Academic Schedule Finder
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl">
-            Students and visitors can search, view, and print complete published academic schedules without an account.
+            Students and visitors can search, view, and print complete published academic schedules retrieved directly from the backend.
           </p>
         </div>
 
@@ -168,6 +205,25 @@ export const PublicTimetablePage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Backend Error Banner */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-5 text-red-800 space-y-3">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+            <h3 className="font-bold text-sm">Timetable API Connection Failed</h3>
+          </div>
+          <p className="text-xs text-red-700 font-mono bg-white/70 p-2.5 rounded-lg border border-red-200 break-all">
+            {error}
+          </p>
+          <button
+            onClick={() => loadInitialData()}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
+          >
+            <RefreshCw className="w-3.5 h-3.5" /> Retry Request
+          </button>
+        </div>
+      )}
 
       {/* FILTER SEARCH FORM (PRINT HIDDEN) */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 print:hidden">
@@ -270,14 +326,16 @@ export const PublicTimetablePage: React.FC = () => {
 
           <div className="flex items-center justify-between pt-2">
             <span className="text-xs text-slate-400">
-              Demo schedules pre-configured for CSE-3A, AIML-2A, ECE-3A.
+              Querying schedule directly from backend API
             </span>
 
             <button
               type="submit"
-              className="px-6 py-2.5 bg-[#2563EB] hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
+              disabled={isQuerying}
+              className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#2563EB] hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
             >
-              View Timetable
+              {isQuerying && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              <span>{isQuerying ? 'Fetching...' : 'View Timetable'}</span>
             </button>
           </div>
         </form>
@@ -293,10 +351,10 @@ export const PublicTimetablePage: React.FC = () => {
                 Official Department Timetable
               </span>
               <h2 className="text-xl sm:text-2xl font-extrabold">
-                {activeDeptObj?.name} • Section {activeSectionObj?.name || 'A'}
+                {activeDeptObj?.name || 'Department'} • Section {activeSectionObj?.name || 'A'}
               </h2>
               <p className="text-xs text-blue-200">
-                Academic Year: {activeAyObj?.yearName} • {activeSemObj?.name} • Total Strength: {activeSectionObj?.totalStudents || 65}
+                Academic Year: {activeAyObj?.yearName || '2026-2027'} • {activeSemObj?.name || 'Semester VI'} • Total Strength: {activeSectionObj?.totalStudents || 65}
               </p>
             </div>
 
@@ -348,7 +406,7 @@ export const PublicTimetablePage: React.FC = () => {
               <Calendar className="w-12 h-12 mx-auto text-slate-300 mb-2" />
               <h4 className="text-base font-bold text-slate-700">No Timetable Published for this Section Yet</h4>
               <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-                The academic coordinator has not yet published schedule entries for this section in the active semester.
+                No schedule entries were returned from the backend for this section in the active semester.
               </p>
             </div>
           ) : viewMode === 'weekly' ? (
@@ -361,4 +419,3 @@ export const PublicTimetablePage: React.FC = () => {
     </div>
   );
 };
-

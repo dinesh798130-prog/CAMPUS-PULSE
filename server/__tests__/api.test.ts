@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { describe, it, expect, beforeAll } from 'vitest'
 import request from 'supertest'
 import app from '../index.js'
@@ -12,8 +13,8 @@ describe('CampusPulse Backend API Integration Tests', () => {
 
   const adminEmail = process.env.ADMIN_SEED_EMAIL || 'admin@vignan.ac.in'
   const studentEmail = process.env.STUDENT_SEED_EMAIL || 'student@vignan.ac.in'
-  const adminPassword = process.env.ADMIN_SEED_PASSWORD || 'Admin@VFSTR2026'
-  const studentPassword = process.env.STUDENT_SEED_PASSWORD || 'Student@VFSTR2026'
+  const adminPassword = process.env.ADMIN_SEED_PASSWORD || ''
+  const studentPassword = process.env.STUDENT_SEED_PASSWORD || ''
 
   beforeAll(async () => {
     // Ensure database connection is ready
@@ -205,7 +206,7 @@ describe('CampusPulse Backend API Integration Tests', () => {
         .send({ question: 'Where is section II AIML-J on Monday?' })
 
       expect(res.status).toBe(200)
-      expect(['answered', 'needs_detail', 'no_data']).toContain(res.body.status)
+      expect(['answered', 'clarify', 'no_data']).toContain(res.body.status)
       expect(res.body.answer).toBeDefined()
       expect(Array.isArray(res.body.citations)).toBe(true)
     })

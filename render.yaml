@@ -2,22 +2,18 @@ services:
   - type: web
     name: campuspulse-backend
     env: node
-    plan: starter
+    plan: free
     region: oregon
-    buildCommand: npm ci && npx prisma db push && npm run build
-    startCommand: npx tsx server/index.ts
+    buildCommand: npm install --include=dev && npx prisma generate
+    startCommand: npx prisma migrate deploy && npm run db:seed && npx tsx server/index.ts
     healthCheckPath: /api/health
-    disk:
-      name: campuspulse-data
-      mountPath: /data
-      sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 3001
       - key: DATABASE_URL
-        value: file:/data/campuspulse.db
+        value: file:./dev.db
       - key: COOKIE_SAMESITE
         value: lax
       - key: ALLOWED_ORIGINS

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/common/Footer';
-import { DemoDataBadge } from '../components/common/DemoDataBadge';
+import { BackendStatusBanner } from '../components/common/BackendStatusBanner';
 import { GlobalSearchModal } from '../components/common/GlobalSearchModal';
 
 export const MainLayout: React.FC = () => {
@@ -10,8 +10,8 @@ export const MainLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F5F7FB] text-[#1E293B]">
-      {/* Official Demo Mode Notice */}
-      <DemoDataBadge />
+      {/* Live Production Backend Status */}
+      <BackendStatusBanner />
 
       {/* Primary University Header */}
       <Navbar onOpenSearch={() => setIsSearchOpen(true)} />
@@ -29,4 +29,3 @@ export const MainLayout: React.FC = () => {
     </div>
   );
 };
-

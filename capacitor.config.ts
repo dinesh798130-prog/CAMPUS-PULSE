@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'ac.in.vignan.campuspulse',
-  appName: 'CampusPulse',
+  appId: 'com.campuspulse.app',
+  appName: 'CAMPUS PULSE',
   webDir: 'dist',
   server: {
     androidScheme: 'https'
