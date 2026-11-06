@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express'
 import { prisma } from '../lib/prisma.js'
+import { campusNow } from '../lib/time.js'
 
 const router = Router()
 
@@ -110,20 +111,34 @@ router.get('/campus/floors/:floorId', async (req: Request, res: Response) => {
 router.get('/availability/now', async (req: Request, res: Response) => {
   const { at, day, time } = req.query as { at?: string; day?: string; time?: string }
 
-  const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+  // Everything here is campus-local time (Asia/Kolkata). Using the server's own
+  // clock would read the wrong day and hour on a UTC host.
   let queryDay: string
   let queryTime: string
 
+  const explicitTime = time || null
+
   if (at) {
     const d = new Date(at)
-    queryDay = isNaN(d.getTime()) ? days[new Date().getDay()] : days[d.getDay()]
-    queryTime = isNaN(d.getTime())
-      ? `${String(new Date().getHours()).padStart(2, '0')}:${String(new Date().getMinutes()).padStart(2, '0')}`
-      : `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+    if (isNaN(d.getTime())) {
+      const c = campusNow()
+      queryDay = day ? day.toUpperCase() : c.day
+      queryTime = explicitTime || c.time
+    } else {
+      const c = campusNow(d)
+      queryDay = day ? day.toUpperCase() : c.day
+      queryTime = explicitTime || c.time
+    }
   } else {
-    const now = new Date()
-    queryDay = (day ? day.toUpperCase() : days[now.getDay()])
-    queryTime = time || `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+    const c = campusNow()
+    queryDay = day ? day.toUpperCase() : c.day
+    queryTime = explicitTime || c.time
+  }
+
+  const LATER_WINDOW_MINUTES = 60
+  const toMinutes = (t: string) => {
+    const [h, m] = t.split(':').map(n => parseInt(n, 10))
+    return h * 60 + m
   }
 
   const liveEntries = await prisma.entry.findMany({
@@ -161,9 +176,15 @@ router.get('/availability/now', async (req: Request, res: Response) => {
       .map(e => [e.roomId!, e.subject])
   )
 
+  const queryMinutes = toMinutes(queryTime)
   const laterRooms = new Map(
     liveEntries
-      .filter(e => e.roomId && e.startTime > queryTime)
+      .filter(
+        e =>
+          e.roomId &&
+          e.startTime > queryTime &&
+          toMinutes(e.startTime) - queryMinutes <= LATER_WINDOW_MINUTES
+      )
       .map(e => [e.roomId!, e.startTime])
   )
 

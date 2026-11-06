@@ -1,3 +1,4 @@
+import 'dotenv/config';
 /**
  * End-to-End Scenario Verification Script
  * Exercises all critical capabilities:
@@ -18,6 +19,13 @@ async function main() {
 
   let studentCookie = '';
   let adminCookie = '';
+  let adminCsrf = '';
+
+  const getCsrf = async (): Promise<string> => {
+    const res = await fetch(`${BASE_URL}/auth/csrf`);
+    const data = await res.json();
+    return data.csrfToken as string;
+  };
 
   // Step 1: Visitor search for free rooms Tuesday 14:00-16:00
   try {
@@ -37,7 +45,7 @@ async function main() {
     const res = await fetch(`${BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: 'student@vignan.ac.in', password: 'Student@VFSTR2026' })
+      body: JSON.stringify({ email: 'student@vignan.ac.in', password: process.env.STUDENT_SEED_PASSWORD || '' })
     });
     studentCookie = res.headers.get('set-cookie')?.split(';')[0] || '';
     const data = await res.json();
@@ -95,9 +103,10 @@ async function main() {
     const loginRes = await fetch(`${BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: 'admin@vignan.ac.in', password: 'Admin@VFSTR2026' })
+      body: JSON.stringify({ email: 'admin@vignan.ac.in', password: process.env.ADMIN_SEED_PASSWORD || '' })
     });
     adminCookie = loginRes.headers.get('set-cookie')?.split(';')[0] || '';
+    adminCsrf = await getCsrf();
     const adminData = await loginRes.json();
     if (loginRes.ok && adminData.user.role === 'admin') {
       console.log(`[PASS] Step 5a: Administrator authenticated: ${adminData.user.name}`);
@@ -112,7 +121,8 @@ async function main() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Cookie: adminCookie
+        Cookie: adminCookie,
+        'x-csrf-token': adminCsrf
       },
       body: JSON.stringify({
         entryId: targetEntry ? targetEntry.id : undefined,
@@ -142,7 +152,7 @@ async function main() {
     if (proposalIdToApprove) {
       const appRes = await fetch(`${BASE_URL}/admin/proposals/${proposalIdToApprove}/approve`, {
         method: 'POST',
-        headers: { Cookie: adminCookie }
+        headers: { Cookie: adminCookie, 'x-csrf-token': adminCsrf }
       });
       const appData = await appRes.json();
       if (appRes.ok && appData.ok) {
@@ -182,8 +192,8 @@ async function main() {
       body: JSON.stringify({ question: 'What is the timetable for II AIML-J?' })
     });
     const d1 = await q1.json();
-    if (q1.ok && d1.answered && d1.citations.length > 0) {
-      console.log(`[PASS] Step 7a: Assistant answered covered question with citation: "${d1.citations[0]}"`);
+    if (q1.ok && d1.status === 'answered' && d1.citations.length > 0) {
+      console.log(`[PASS] Step 7a: Assistant answered covered question with citation: "${d1.citations[0].text}"`);
     } else {
       console.error('[FAIL] Step 7a: Assistant failed covered question', d1);
     }
@@ -195,8 +205,8 @@ async function main() {
       body: JSON.stringify({ question: 'What is the timetable for Section Mechanical 4B?' })
     });
     const d2 = await q2.json();
-    if (q2.ok && !d2.answered && d2.type === 'no_data') {
-      console.log(`[PASS] Step 7b: Assistant appropriately identified data boundary: "${d2.message}"`);
+    if (q2.ok && d2.status === 'no_data') {
+      console.log(`[PASS] Step 7b: Assistant appropriately identified data boundary: "${d2.answer}"`);
     } else {
       console.error('[FAIL] Step 7b: Assistant did not acknowledge data gap', d2);
     }
