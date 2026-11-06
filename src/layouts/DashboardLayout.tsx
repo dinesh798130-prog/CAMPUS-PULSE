@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Calendar,
@@ -35,11 +35,12 @@ interface DashboardLayoutProps {
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ requiredRole }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const { session, logout } = useAuth();
+  const { session, loading, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const role = session?.role || 'admin';
+  // Fall back to the role the route was declared with, never to 'admin'.
+  const role = session?.role || requiredRole || 'public';
 
   React.useEffect(() => {
     if (!sidebarOpen) return;
@@ -52,6 +53,24 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ requiredRole }
   }, [sidebarOpen]);
 
   // Navigation configurations based on role
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-slate-400">
+        Loading…
+      </div>
+    );
+  }
+
+  if (!session) {
+    const loginPath = requiredRole ? `/login/${requiredRole}` : '/login';
+    return <Navigate to={loginPath} state={{ from: location.pathname }} replace />;
+  }
+
+  if (requiredRole && session.role !== requiredRole) {
+    return <Navigate to={`/${session.role}/dashboard`} replace />;
+  }
+
   const getNavSections = () => {
     if (role === 'student') {
       return [

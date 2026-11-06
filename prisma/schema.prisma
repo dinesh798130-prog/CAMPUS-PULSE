@@ -97,6 +97,7 @@ model Group {
   year         Int     // 2
   departmentId String
   section      String  // "J"
+  size         Int?    // enrolled strength, used by the repair engine's capacity check
   department   Department @relation(fields: [departmentId], references: [id])
   entries      Entry[]
 }

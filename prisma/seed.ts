@@ -129,8 +129,26 @@ async function main() {
     { id: 'VPTF-12', blockId: 'P', floorId: 'P-3', floor_num: 3, confidence: 'inferred' },
   ]
 
+  // Room type and capacity. The repair engine's type and capacity checks only
+  // bite if these are real, so the rooms that carry lab/seminar sessions in the
+  // demo timetable are classified explicitly and everything else defaults to a
+  // standard classroom.
+  const LAB_ROOMS = new Set(['N-617', 'N-618'])
+  const SEMINAR_ROOMS = new Set(['N-514A', 'N-514B'])
+
+  function roomProfile(id: string): { type: string; capacity: number } {
+    if (LAB_ROOMS.has(id)) return { type: 'Laboratory', capacity: 60 }
+    if (SEMINAR_ROOMS.has(id)) return { type: 'Seminar', capacity: 45 }
+    return { type: 'Classroom', capacity: 60 }
+  }
+
   for (const r of confirmedRooms) {
-    await prisma.room.upsert({ where: { id: r.id }, update: {}, create: r })
+    const profile = roomProfile(r.id)
+    await prisma.room.upsert({
+      where: { id: r.id },
+      update: profile,
+      create: { ...r, ...profile }
+    })
   }
 
   // 4. Department: ACSE
@@ -143,8 +161,8 @@ async function main() {
   // 5. Group: II AIML-J (Official demo section)
   const group = await prisma.group.upsert({
     where: { name: 'II AIML-J' },
-    update: {},
-    create: { name: 'II AIML-J', year: 2, section: 'J', departmentId: acse.id }
+    update: { size: 60 },
+    create: { name: 'II AIML-J', year: 2, section: 'J', size: 60, departmentId: acse.id }
   })
 
   // 6. Demo Faculty
@@ -159,10 +177,22 @@ async function main() {
     }
   })
 
-  // 7. Demo Accounts (Passwords read securely from environment)
-  const adminPass = await bcrypt.hash(process.env.ADMIN_SEED_PASSWORD || 'Admin@VFSTR2026', 10)
-  const facultyPass = await bcrypt.hash(process.env.FACULTY_SEED_PASSWORD || 'Faculty@VFSTR2026', 10)
-  const studentPass = await bcrypt.hash(process.env.STUDENT_SEED_PASSWORD || 'Student@VFSTR2026', 10)
+  // 7. Demo Accounts. Passwords must come from the environment; there is no
+  // fallback literal, so a misconfigured deployment fails loudly instead of
+  // shipping a known password.
+  const requireEnv = (name: string): string => {
+    const value = process.env[name]
+    if (!value || value === '<set-in-env>') {
+      throw new Error(
+        `${name} is required. Set ADMIN_SEED_PASSWORD, FACULTY_SEED_PASSWORD and STUDENT_SEED_PASSWORD before seeding.`
+      )
+    }
+    return value
+  }
+
+  const adminPass = await bcrypt.hash(requireEnv('ADMIN_SEED_PASSWORD'), 10)
+  const facultyPass = await bcrypt.hash(requireEnv('FACULTY_SEED_PASSWORD'), 10)
+  const studentPass = await bcrypt.hash(requireEnv('STUDENT_SEED_PASSWORD'), 10)
 
   await prisma.user.upsert({
     where: { email: process.env.ADMIN_SEED_EMAIL || 'admin@vignan.ac.in' },

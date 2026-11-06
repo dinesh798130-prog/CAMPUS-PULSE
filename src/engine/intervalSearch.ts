@@ -18,6 +18,8 @@ export interface ScheduledEntry extends TimeSlot {
   subject?: string;
   day: number; // 1 = Monday ... 6 = Saturday
   isMock?: boolean;
+  /** "class" | "lab" | "library"; drives the engine's room-type check. */
+  entryType?: string | null;
 }
 
 export interface DisruptionRecord extends TimeSlot {
