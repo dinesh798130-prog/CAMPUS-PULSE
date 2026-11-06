@@ -204,6 +204,20 @@ export async function seedDemoSections(prisma: PrismaClient): Promise<void> {
   let skipped = 0
 
   for (const sec of SECTIONS) {
+    // Skip any group that already has real imported entries, before touching
+    // the row at all. Without this the synthetic grid would be layered on top
+    // of genuine department data for sections that have since been parsed.
+    const existingGroup = await prisma.group.findUnique({ where: { name: sec.name } })
+    if (existingGroup) {
+      const realEntries = await prisma.entry.count({
+        where: { groupId: existingGroup.id, is_mock: false }
+      })
+      if (realEntries > 0) {
+        skipped += 1
+        continue
+      }
+    }
+
     const group = await prisma.group.upsert({
       where: { name: sec.name },
       update: { size: sec.size },
