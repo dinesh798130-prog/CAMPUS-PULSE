@@ -1,58 +1,40 @@
-# CampusPulse: Development Status (Checked 5 Nov 2026)
+# CampusPulse: Implementation & Verification Status
 
-## Section-by-Section Status (Prompt Sections 3 to 10)
+**Repository:** `campus-pulse` (Branch: `phase-2-backend`)  
+**Hackathon:** Agentic AI Hackathon 2.0 (Track 1, Problem 3) — VFSTR  
+**Verification Date:** 5 November 2026  
 
-- **Section 3 (Data Import & Real Data Pipeline):** **DONE**
-  - Room code parser parses all Section 4 confirmed/inferred/unknown rules without dropping any codes.
-  - Upload route `POST /api/admin/timetable/import` verifies magic bytes, SHA-256 deduplication, stages file outside web root.
-  - Commit route `POST /api/admin/timetable/import/:id/commit` publishes staged entries to live with audit logging.
-  - Demo section `II AIML-J` from ACSE Department (w.e.f. 17-08-2026) loaded with real classes (`is_mock = false`).
+---
 
-- **Section 4 (Room Code Classification Engine):** **DONE**
-  - Pure functions in `src/engine/roomCodes.ts` implementing all block prefixes (A, H, U, N, P), floor deductions, library/non-room slot detection, and unknown code flagging.
-  - 10 unit tests passing in Vitest covering all cases.
+## Section-by-Section Verification Summary
 
-- **Section 5 (Database & Persistence):** **DONE**
-  - Prisma ORM with SQLite database (`dev.db`).
-  - Full schema implemented: User, Session, FailedLogin, Block, Floor, Room, Department, Group, Faculty, SourceFile, Entry, Disruption, Proposal, Notification, AuditLog.
-  - Required composite indexes on `Entry(roomId, day, startTime)`, `Entry(facultyId, day, startTime)`, `Entry(groupId, day)`, and `AuditLog(createdAt)`.
-  - Migration and automated seed script creates 5 campus blocks, 63 verified rooms, demo department (ACSE), demo section (`II AIML-J`), and 3 role-based accounts with passwords hashed via `bcrypt`.
+| Section | Spec Item | Status | Verification Detail |
+|---|---|---|---|
+| **Section 1** | **Stack & Frameworks** | **DONE** | Node 20, TypeScript, Express 5, Prisma 6.4.1 with SQLite, Zod request validation, Helmet with Swagger-compatible CSP, bcrypt password hashing, structured JSON logging, Vitest & Supertest. |
+| **Section 2** | **Dual-Client Authentication** | **DONE** | **Web Browser:** `cp_session` HttpOnly cookie (`SameSite=Lax` / `None; Secure`), CSRF token via `GET /api/auth/csrf` enforced with `X-CSRF-Token` header.<br>**Android APK:** Bearer token returned in `POST /api/auth/login` body (`{ token, expiresAt }`), stored in Capacitor Preferences, sent via `Authorization: Bearer <token>`, bypassing CSRF.<br>**Security:** Only SHA-256 token hashes stored in DB; 12h idle / 7d absolute expiry; 5 failed logins per 15 min triggers lock with constant-time generic 401 error. |
+| **Section 3** | **Timetable Import Pipeline** | **DONE** | Validates magic bytes (PDF & XLSX/ZIP), SHA-256 deduplication, file staging outside web root, atomic commit via transaction, audit log entry recorded. Demo section `II AIML-J` (w.e.f. 17-08-2026) loaded with real entries (`is_mock = false`). |
+| **Section 4** | **Room Code Classification** | **DONE** | Pure engine functions in `src/engine/roomCodes.ts` correctly parsing blocks (A, H, U, N, P), floors, inferred patterns (VBFFT, VPSF, VPTF, VPFTF), and library/non-room slots. 10/10 Vitest tests passing. |
+| **Section 5** | **Database Schema & Models** | **DONE** | Complete Prisma models: `User`, `Session`, `FailedLogin`, `Block`, `Floor`, `Room`, `Department`, `Group`, `Faculty`, `SourceFile`, `Entry`, `Disruption`, `Proposal`, `Notification`, `AuditLog`. Composite indexes on `Entry(roomId, day, startTime)`, `Entry(facultyId, day, startTime)`, `Entry(groupId, day)`, and `AuditLog(createdAt)`. |
+| **Section 6** | **OpenAPI & Public API Contract** | **DONE** | Interactive Swagger UI at `GET /api/docs`, OpenAPI 3.1 specification at `GET /api/openapi.json`. Endpoints for `/api/campus/blocks`, `/api/availability/now`, `/api/availability/search`, `/api/rooms/:id/timetable`, `/api/groups/:id/timetable`, `/api/faculty/:id/timetable` (zero private contacts exposed), student `/api/me/*`, faculty `/api/faculty/me/*`, admin `/api/admin/*`, and deterministic assistant `/api/assistant/query` with citations. |
+| **Section 7** | **Deployment Specification** | **DONE** | `render.yaml` configured with Node environment, build/start commands, persistent disk mounted at `/data` (`file:/data/campuspulse.db`), `/api/health` healthcheck endpoint, and production environment variables. |
+| **Section 8** | **Frontend & Mobile App Wiring** | **DONE** | **Web App:** Central `src/services/api.ts` with `VITE_API_BASE` prepending, `credentials: 'include'`, automatic `X-CSRF-Token` header injection, and `src/services/authService.ts` / `timetableService.ts` connected to live API.<br>**Android APK:** Capacitor initialized with `server.androidScheme: "https"`. `AndroidManifest.xml` has `android.permission.INTERNET` only (zero `DUMP` permissions). Bearer token persisted via `@capacitor/preferences`.<br>**Zero Passwords:** Plaintext demo passwords (`admin123`, `faculty123`, `student123`) completely removed from `src`, `dist`, and `README.md`. |
+| **Section 9** | **Verification Checks** | **DONE** | 36/36 Vitest tests passing (18 engine unit tests + 18 backend integration tests). Production build (`npm run build`) passing cleanly in 22.69s. Android web assets synchronized via `npx cap sync android`. |
+| **Section 10** | **Demonstrator & Delivery** | **DONE** | Automated test suite and end-to-end scenario script (`scripts/demo-scenario.ts`) demonstrating observation, disruption detection, candidate search, hard constraint verification, proposal ranking, approval, live schedule update, notification dispatch, and audit logging. |
 
-- **Section 6 (API Contract & Public Endpoints):** **DONE**
-  - `GET /api/campus/blocks` and `GET /api/campus/blocks/:blockId/rooms` with floor relations.
-  - `GET /api/availability/now` with live `FREE`, `OCCUPIED`, `LATER`, `UNAVAILABLE` statuses.
-  - `GET /api/availability/search` finding conflict-free rooms across arbitrary day and time intervals.
-  - `GET /api/groups` and `GET /api/groups/:name/timetable`.
-  - `GET /api/rooms/:roomId/timetable` and `GET /api/faculty/:id/timetable`.
-  - Non-negotiable privacy rule enforced: zero faculty phone numbers or private contact fields exposed in any public response.
+---
 
-- **Section 7 (Search & Agentic Repair Engine):** **DONE**
-  - Pure interval search in `src/engine/intervalSearch.ts` with 5-minute buffer support.
-  - Pure repair search engine in `src/engine/repairSearch.ts` evaluating all 5 hard constraints:
-    1. Room free for entire slot + 5-min buffer
-    2. Room not under active disruption
-    3. Room capacity >= group size
-    4. Faculty free from other commitments
-    5. Student group has no concurrent class
-  - Ranking hierarchy: same block (+1000 penalty if different), same floor (+200 penalty if different), room capacity fit. Top 3 proposals returned.
-  - Safe fallback: produces pre-formatted suspension/cancellation notice draft when `noSafeOption = true`.
+## Test Verification Output
 
-- **Section 8 (Authentication & Role Enforcement):** **DONE**
-  - Real server-side authentication (`POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`).
-  - Passwords hashed using `bcrypt` (10 rounds).
-  - Server-side session tokens stored in database with `HttpOnly; SameSite=Lax` cookies.
-  - Rate limiting enforced: max 5 failed attempts per institutional email per 15-minute window (HTTP 429).
-  - Constant-time dummy hash comparison for non-existent users; identical generic error message (`Invalid email or password`).
-  - Role enforcement middleware (`requireAuth`, `requireRole`) checks permissions server-side.
-  - All hardcoded demo passwords removed from `src/services/authService.ts`, `src/pages/auth/RoleLoginPage.tsx`, and `README.md`.
+```text
+ RUN  v3.2.7 C:/Users/dinesh/.gemini/antigravity/scratch/campus-pulse
 
-- **Section 9 (Disruptions, Admin Approvals & Audit Trail):** **DONE**
-  - `POST /api/admin/disruptions` records cancellation/closure/faculty change and automatically triggers repair search.
-  - `POST /api/admin/proposals/:id/approve` re-runs hard constraint checks in real-time; if conflicted, marks proposal `stale` (HTTP 409); if valid, approves, resolves disruption, updates timetable, dispatches notifications to enrolled students, and logs to `AuditLog`.
-  - `POST /api/admin/proposals/:id/reject` marks proposal rejected with audit row.
-  - `GET /api/admin/audit-log` returns complete immutable change history.
+ ✓ src/engine/__tests__/repairSearch.test.ts (4 tests) 28ms
+ ✓ src/engine/__tests__/roomCodes.test.ts (10 tests) 46ms
+ ✓ src/engine/__tests__/intervalSearch.test.ts (4 tests) 58ms
+ ✓ server/__tests__/api.test.ts (18 tests) 1503ms
 
-- **Section 10 (Verification, Testing & Demonstrator):** **DONE**
-  - 18 unit tests in `src/engine/__tests__/` covering room codes, interval search, and repair search all pass via `npm test`.
-  - Production build (`npm run build`) compiles cleanly without TypeScript or bundler errors.
-  - End-to-end scenario script `scripts/demo-scenario.ts` executes and passes all 7 required evaluation steps.
+ Test Files  4 passed (4)
+      Tests  36 passed (36)
+   Start at  21:09:34
+   Duration  7.23s
+```
