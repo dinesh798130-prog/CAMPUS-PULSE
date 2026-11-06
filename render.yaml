@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: campuspulse-backend
+    env: node
+    plan: starter
+    region: oregon
+    buildCommand: npm ci && npx prisma db push && npm run build
+    startCommand: npx tsx server/index.ts
+    healthCheckPath: /api/health
+    disk:
+      name: campuspulse-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: DATABASE_URL
+        value: file:/data/campuspulse.db
+      - key: COOKIE_SAMESITE
+        value: lax
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ADMIN_SEED_EMAIL
+        value: admin@vignan.ac.in
+      - key: ADMIN_SEED_PASSWORD
+        sync: false
+      - key: FACULTY_SEED_EMAIL
+        value: faculty@vignan.ac.in
+      - key: FACULTY_SEED_PASSWORD
+        sync: false
+      - key: STUDENT_SEED_EMAIL
+        value: student@vignan.ac.in
+      - key: STUDENT_SEED_PASSWORD
+        sync: false

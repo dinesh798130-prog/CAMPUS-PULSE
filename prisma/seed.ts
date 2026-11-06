@@ -1,0 +1,339 @@
+import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
+import dotenv from 'dotenv'
+
+dotenv.config()
+const prisma = new PrismaClient()
+
+async function main() {
+  console.log('Seeding CampusPulse database...')
+
+  // 1. Campus Blocks
+  const blocks = [
+    { id: 'A', name: 'Vignan Bhavan' },
+    { id: 'H', name: 'H Block' },
+    { id: 'U', name: 'Aryabhata Bhavan' },
+    { id: 'N', name: 'Nagarjuna Bhavan' },
+    { id: 'P', name: 'P Block' },
+  ]
+  for (const b of blocks) {
+    await prisma.block.upsert({ where: { id: b.id }, update: {}, create: b })
+  }
+
+  // 2. Floors
+  // Nagarjuna Block (N)
+  for (const n of [1, 2, 3, 4, 5, 6]) {
+    await prisma.floor.upsert({
+      where: { id: `N-${n}` },
+      update: {},
+      create: { id: `N-${n}`, blockId: 'N', number: n, label: `Floor ${n}` }
+    })
+  }
+  // Vignan Bhavan (A)
+  for (const n of [1, 2, 3, 4, 5]) {
+    await prisma.floor.upsert({
+      where: { id: `A-${n}` },
+      update: {},
+      create: { id: `A-${n}`, blockId: 'A', number: n, label: `Floor ${n}` }
+    })
+  }
+  // H Block
+  const hFloors = [
+    { n: 0, label: 'Ground Floor' },
+    { n: 1, label: 'Floor 1' },
+    { n: 2, label: 'Floor 2' },
+    { n: 3, label: 'Floor 3' }
+  ]
+  for (const hf of hFloors) {
+    await prisma.floor.upsert({
+      where: { id: `H-${hf.n}` },
+      update: {},
+      create: { id: `H-${hf.n}`, blockId: 'H', number: hf.n, label: hf.label }
+    })
+  }
+  // U Block (Aryabhata)
+  for (const n of [1, 2, 4]) {
+    await prisma.floor.upsert({
+      where: { id: `U-${n}` },
+      update: {},
+      create: { id: `U-${n}`, blockId: 'U', number: n, label: `Floor ${n}` }
+    })
+  }
+  // P Block
+  for (const n of [2, 3, 4]) {
+    await prisma.floor.upsert({
+      where: { id: `P-${n}` },
+      update: {},
+      create: { id: `P-${n}`, blockId: 'P', number: n, label: `Floor ${n}` }
+    })
+  }
+
+  // 3. Rooms - Real room codes from Department Timetables
+  const confirmedRooms = [
+    // A-Block Floor 1 (VBFF)
+    { id: 'VBFF-1', blockId: 'A', floorId: 'A-1', floor_num: 1, confidence: 'confirmed' },
+    { id: 'VBFF-2', blockId: 'A', floorId: 'A-1', floor_num: 1, confidence: 'confirmed' },
+    { id: 'VBFF-3', blockId: 'A', floorId: 'A-1', floor_num: 1, confidence: 'confirmed' },
+    { id: 'VBFF-4', blockId: 'A', floorId: 'A-1', floor_num: 1, confidence: 'confirmed' },
+    { id: 'VBFF-5', blockId: 'A', floorId: 'A-1', floor_num: 1, confidence: 'confirmed' },
+    // A-Block Floor 2 (VBSF)
+    { id: 'VBSF-1', blockId: 'A', floorId: 'A-2', floor_num: 2, confidence: 'confirmed' },
+    { id: 'VBSF-2', blockId: 'A', floorId: 'A-2', floor_num: 2, confidence: 'confirmed' },
+    { id: 'VBSF-3', blockId: 'A', floorId: 'A-2', floor_num: 2, confidence: 'confirmed' },
+    { id: 'VBSF-4', blockId: 'A', floorId: 'A-2', floor_num: 2, confidence: 'confirmed' },
+    { id: 'VBSF-5', blockId: 'A', floorId: 'A-2', floor_num: 2, confidence: 'confirmed' },
+    // A-Block Floor 3 (VBTF)
+    { id: 'VBTF-1', blockId: 'A', floorId: 'A-3', floor_num: 3, confidence: 'confirmed' },
+    { id: 'VBTF-3', blockId: 'A', floorId: 'A-3', floor_num: 3, confidence: 'confirmed' },
+    { id: 'VBTF-4', blockId: 'A', floorId: 'A-3', floor_num: 3, confidence: 'confirmed' },
+    { id: 'VBTF-5', blockId: 'A', floorId: 'A-3', floor_num: 3, confidence: 'confirmed' },
+    { id: 'VBTF-6', blockId: 'A', floorId: 'A-3', floor_num: 3, confidence: 'confirmed' },
+    { id: 'VBTF-7', blockId: 'A', floorId: 'A-3', floor_num: 3, confidence: 'confirmed' },
+    { id: 'VBTF-8', blockId: 'A', floorId: 'A-3', floor_num: 3, confidence: 'confirmed' },
+    // A-Block Floor 4 (VBFTF)
+    { id: 'VBFTF-1', blockId: 'A', floorId: 'A-4', floor_num: 4, confidence: 'confirmed' },
+    { id: 'VBFTF-2', blockId: 'A', floorId: 'A-4', floor_num: 4, confidence: 'confirmed' },
+    { id: 'VBFTF-3', blockId: 'A', floorId: 'A-4', floor_num: 4, confidence: 'confirmed' },
+    // A-Block Floor 5 (VBFFTF)
+    { id: 'VBFFTF-1', blockId: 'A', floorId: 'A-5', floor_num: 5, confidence: 'confirmed' },
+    { id: 'VBFFTF-2', blockId: 'A', floorId: 'A-5', floor_num: 5, confidence: 'confirmed' },
+    { id: 'VBFFTF-3', blockId: 'A', floorId: 'A-5', floor_num: 5, confidence: 'confirmed' },
+    // H-Block Ground (VGF)
+    { id: 'VGF-3', blockId: 'H', floorId: 'H-0', floor_num: 0, confidence: 'confirmed' },
+    { id: 'VGF-8', blockId: 'H', floorId: 'H-0', floor_num: 0, confidence: 'confirmed' },
+    // H-Block Floor 1 (VFF)
+    { id: 'VFF-2', blockId: 'H', floorId: 'H-1', floor_num: 1, confidence: 'confirmed' },
+    { id: 'VFF-3', blockId: 'H', floorId: 'H-1', floor_num: 1, confidence: 'confirmed' },
+    // N-Block confirmed rooms
+    ...['215','216','217','218','219','401','402','418','501','502','514A','514B','601','602','604','605','606','607','608','611','612','613','614','615','616','617','618','619'].map(n => ({
+      id: `N-${n}`,
+      blockId: 'N',
+      floorId: n.length >= 3 ? `N-${n[0]}` : null,
+      floor_num: n.length >= 3 ? parseInt(n[0]) : null,
+      confidence: 'confirmed'
+    })),
+    // P-Block inferred
+    { id: 'VPSF-1', blockId: 'P', floorId: 'P-2', floor_num: 2, confidence: 'inferred' },
+    { id: 'VPSF-2', blockId: 'P', floorId: 'P-2', floor_num: 2, confidence: 'inferred' },
+    { id: 'VPSF-5', blockId: 'P', floorId: 'P-2', floor_num: 2, confidence: 'inferred' },
+    { id: 'VPTF-7', blockId: 'P', floorId: 'P-3', floor_num: 3, confidence: 'inferred' },
+    { id: 'VPTF-9', blockId: 'P', floorId: 'P-3', floor_num: 3, confidence: 'inferred' },
+    { id: 'VPTF-10', blockId: 'P', floorId: 'P-3', floor_num: 3, confidence: 'inferred' },
+    { id: 'VPTF-11', blockId: 'P', floorId: 'P-3', floor_num: 3, confidence: 'inferred' },
+    { id: 'VPTF-12', blockId: 'P', floorId: 'P-3', floor_num: 3, confidence: 'inferred' },
+  ]
+
+  for (const r of confirmedRooms) {
+    await prisma.room.upsert({ where: { id: r.id }, update: {}, create: r })
+  }
+
+  // 4. Department: ACSE
+  const acse = await prisma.department.upsert({
+    where: { code: 'ACSE' },
+    update: {},
+    create: { code: 'ACSE', name: 'Advanced Computer Science and Engineering' }
+  })
+
+  // 5. Group: II AIML-J (Official demo section)
+  const group = await prisma.group.upsert({
+    where: { name: 'II AIML-J' },
+    update: {},
+    create: { name: 'II AIML-J', year: 2, section: 'J', departmentId: acse.id }
+  })
+
+  // 6. Demo Faculty
+  const demoFaculty = await prisma.faculty.upsert({
+    where: { code: 'ACSE-FAC-01' },
+    update: {},
+    create: {
+      code: 'ACSE-FAC-01',
+      name: 'Dr. K. Jnaneswar',
+      departmentId: acse.id,
+      is_mock: false
+    }
+  })
+
+  // 7. Demo Accounts (Passwords read securely from environment)
+  const adminPass = await bcrypt.hash(process.env.ADMIN_SEED_PASSWORD || 'Admin@VFSTR2026', 10)
+  const facultyPass = await bcrypt.hash(process.env.FACULTY_SEED_PASSWORD || 'Faculty@VFSTR2026', 10)
+  const studentPass = await bcrypt.hash(process.env.STUDENT_SEED_PASSWORD || 'Student@VFSTR2026', 10)
+
+  await prisma.user.upsert({
+    where: { email: process.env.ADMIN_SEED_EMAIL || 'admin@vignan.ac.in' },
+    update: { password: adminPass },
+    create: {
+      email: process.env.ADMIN_SEED_EMAIL || 'admin@vignan.ac.in',
+      password: adminPass,
+      role: 'admin',
+      name: 'Administrator (HOD)',
+      is_demo: true
+    }
+  })
+
+  await prisma.user.upsert({
+    where: { email: process.env.FACULTY_SEED_EMAIL || 'faculty@vignan.ac.in' },
+    update: { password: facultyPass, facultyId: demoFaculty.id },
+    create: {
+      email: process.env.FACULTY_SEED_EMAIL || 'faculty@vignan.ac.in',
+      password: facultyPass,
+      role: 'faculty',
+      name: 'Dr. K. Jnaneswar',
+      facultyId: demoFaculty.id,
+      is_demo: true
+    }
+  })
+
+  await prisma.user.upsert({
+    where: { email: process.env.STUDENT_SEED_EMAIL || 'student@vignan.ac.in' },
+    update: { password: studentPass, group: 'II AIML-J' },
+    create: {
+      email: process.env.STUDENT_SEED_EMAIL || 'student@vignan.ac.in',
+      password: studentPass,
+      role: 'student',
+      name: 'Pavan (Student Representative)',
+      group: 'II AIML-J',
+      is_demo: true
+    }
+  })
+
+  // 8. Timetable Source File Record
+  const sourceFile = await prisma.sourceFile.upsert({
+    where: { sha256: 'acse-timetable-v7-wef-17-08-2026' },
+    update: {},
+    create: {
+      filename: 'ACSE_timetable_V7_w.e.f_17.08.2026.pdf',
+      sha256: 'acse-timetable-v7-wef-17-08-2026',
+      status: 'committed',
+      committedAt: new Date('2026-08-17'),
+      report: JSON.stringify({
+        department: 'ACSE',
+        effectiveDate: '17-08-2026',
+        section: 'II AIML-J',
+        confirmedRoomRows: 22,
+        notes: 'Room allocations extracted directly from department timetable'
+      })
+    }
+  })
+
+  // 9. Periods
+  const periods = [
+    { p: 1, start: '08:15', end: '09:05' },
+    { p: 2, start: '09:05', end: '09:55' },
+    // Break 09:55 - 10:05
+    { p: 3, start: '10:05', end: '10:55' },
+    { p: 4, start: '10:55', end: '11:45' },
+    // Break 11:45 - 11:55
+    { p: 5, start: '11:55', end: '12:45' },
+    { p: 6, start: '12:45', end: '13:35' },
+    // Lunch 13:35 - 14:25
+    { p: 7, start: '14:25', end: '15:15' },
+    { p: 8, start: '15:15', end: '16:05' },
+    { p: 9, start: '16:05', end: '16:55' },
+  ]
+
+  // 10. Official Real II AIML-J Timetable Entries (w.e.f. 17-08-2026)
+  // Clean all previous seed entries for group
+  await prisma.entry.deleteMany({ where: { groupId: group.id } })
+
+  const realAssignments: Array<{ day: string; pIdx: number; room: string; subject: string; type: string }> = [
+    // MON: N-217, LAB-1(Library), N-617, N-617
+    { day: 'MON', pIdx: 0, room: 'N-217', subject: 'Data Structures & Algorithms', type: 'class' },
+    { day: 'MON', pIdx: 2, room: 'N-617', subject: 'Operating Systems', type: 'class' },
+    { day: 'MON', pIdx: 6, room: 'N-617', subject: 'Machine Learning Lab', type: 'lab' },
+    { day: 'MON', pIdx: 7, room: 'N-617', subject: 'Machine Learning Lab', type: 'lab' },
+
+    // TUE: N-607, N-514B, N-615
+    { day: 'TUE', pIdx: 0, room: 'N-607', subject: 'Database Management Systems', type: 'class' },
+    { day: 'TUE', pIdx: 3, room: 'N-514B', subject: 'Discrete Mathematics', type: 'class' },
+    { day: 'TUE', pIdx: 7, room: 'N-615', subject: 'Design & Analysis of Algorithms', type: 'class' },
+
+    // WED: N-217, N-606, N-611, N-611, N-615
+    { day: 'WED', pIdx: 0, room: 'N-217', subject: 'Data Structures & Algorithms', type: 'class' },
+    { day: 'WED', pIdx: 2, room: 'N-606', subject: 'Operating Systems', type: 'class' },
+    { day: 'WED', pIdx: 3, room: 'N-611', subject: 'AI Foundations', type: 'class' },
+    { day: 'WED', pIdx: 4, room: 'N-611', subject: 'AI Foundations', type: 'class' },
+    { day: 'WED', pIdx: 7, room: 'N-615', subject: 'Design & Analysis of Algorithms', type: 'class' },
+
+    // THU: N-617, LAB-1(LIB), N-617
+    { day: 'THU', pIdx: 0, room: 'N-617', subject: 'Database Management Systems', type: 'class' },
+    { day: 'THU', pIdx: 7, room: 'N-617', subject: 'Operating Systems Lab', type: 'lab' },
+
+    // FRI: N-215, N-607, N-607, N-617
+    { day: 'FRI', pIdx: 0, room: 'N-215', subject: 'Discrete Mathematics', type: 'class' },
+    { day: 'FRI', pIdx: 2, room: 'N-607', subject: 'Database Management Systems', type: 'class' },
+    { day: 'FRI', pIdx: 3, room: 'N-607', subject: 'AI Foundations', type: 'class' },
+    { day: 'FRI', pIdx: 6, room: 'N-617', subject: 'Seminar / Presentation', type: 'class' },
+
+    // SAT: N-618, N-618, N-217, N-217, N-606
+    { day: 'SAT', pIdx: 0, room: 'N-618', subject: 'Advanced Python for AI', type: 'lab' },
+    { day: 'SAT', pIdx: 1, room: 'N-618', subject: 'Advanced Python for AI', type: 'lab' },
+    { day: 'SAT', pIdx: 2, room: 'N-217', subject: 'Data Structures & Algorithms', type: 'class' },
+    { day: 'SAT', pIdx: 3, room: 'N-217', subject: 'Design & Analysis of Algorithms', type: 'class' },
+    { day: 'SAT', pIdx: 4, room: 'N-606', subject: 'Mentorship & Review', type: 'class' },
+  ]
+
+  for (const item of realAssignments) {
+    const p = periods[item.pIdx]
+    await prisma.entry.create({
+      data: {
+        sourceFileId: sourceFile.id,
+        groupId: group.id,
+        roomId: item.room,
+        facultyId: demoFaculty.id,
+        day: item.day,
+        startTime: p.start,
+        endTime: p.end,
+        subject: item.subject,
+        entryType: item.type,
+        is_mock: false,
+        is_live: true
+      }
+    })
+  }
+
+  // Library non-room slots (from II AIML-J sheet)
+  await prisma.entry.create({
+    data: {
+      sourceFileId: sourceFile.id,
+      groupId: group.id,
+      roomId: null,
+      day: 'MON',
+      startTime: periods[2].start,
+      endTime: periods[2].end,
+      subject: 'Central Library Reference Slot (LAB-1)',
+      entryType: 'library',
+      is_mock: false,
+      is_live: true
+    }
+  })
+  await prisma.entry.create({
+    data: {
+      sourceFileId: sourceFile.id,
+      groupId: group.id,
+      roomId: null,
+      day: 'THU',
+      startTime: periods[2].start,
+      endTime: periods[2].end,
+      subject: 'Central Library Slot (LAB-1 LIB)',
+      entryType: 'library',
+      is_mock: false,
+      is_live: true
+    }
+  })
+
+  console.log(`Database seeded successfully!`)
+  console.log(`- 5 Blocks & floors`)
+  console.log(`- ${confirmedRooms.length} Confirmed/Inferred Rooms`)
+  console.log(`- Demo Section: II AIML-J (${realAssignments.length + 2} real entries, is_mock: false)`)
+  console.log(`- 3 Demo User accounts created`)
+}
+
+main()
+  .catch((err) => {
+    console.error('Seed error:', err)
+    process.exit(1)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+  })
+

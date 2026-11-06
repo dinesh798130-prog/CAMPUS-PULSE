@@ -28,15 +28,17 @@ Campus Pulse is an intelligent, university-grade web platform that interconnects
 
 ---
 
-## 🔑 Demo Access Credentials (1-Click Autofill Enabled)
+## 🔑 Authentication & Demo Access
 
-| Role | Username / Institutional Email | Password | Pre-configured Profile |
-|---|---|---|---|
-| **Administrator** | `admin@vignan.ac.in` | `admin123` | Dr. Ch. Srinivas (Academic Affairs Cell) |
-| **Faculty Member** | `k_radhakrishna@vignan.ac.in` | `faculty123` | Dr. K. Radhakrishna (Professor & Head, CSE) |
-| **Enrolled Student** | `rahul.211fa04001@vignan.ac.in` | `student123` | Rahul Sharma (Reg: 211FA04001, CSE-3A) |
+Authentication is powered by server-side sessions stored in SQLite with password hashing (`bcrypt`) and `HttpOnly; SameSite=Lax` cookies.
 
-*Note: Public timetable searches (`/timetable`) and Campus Explorer (`/campus`) require **no authentication** whatsoever.*
+Demo user accounts are configured via environment variables (see `.env.example`).
+Default demo accounts:
+- **Administrator:** `admin@vignan.ac.in` (password configured via `ADMIN_SEED_PASSWORD`)
+- **Faculty:** `faculty@vignan.ac.in` (password configured via `FACULTY_SEED_PASSWORD`)
+- **Student:** `student@vignan.ac.in` (password configured via `STUDENT_SEED_PASSWORD`, linked to section `II AIML-J`)
+
+*Note: Public timetable searches (`/timetable`), Availability (`/availability`), and Campus Explorer (`/campus`) require **no authentication** whatsoever.*
 
 ---
 

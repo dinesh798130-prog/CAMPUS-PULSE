@@ -1,0 +1,386 @@
+import { Router, Request, Response } from 'express'
+import { prisma } from '../lib/prisma.js'
+
+const router = Router()
+
+// GET /api/campus/blocks
+router.get('/campus/blocks', async (_req: Request, res: Response) => {
+  const blocks = await prisma.block.findMany({
+    include: {
+      floors: {
+        orderBy: { number: 'asc' }
+      }
+    },
+    orderBy: { id: 'asc' }
+  })
+  res.json({ blocks })
+})
+
+// GET /api/campus/blocks/:code/floors
+router.get('/campus/blocks/:code/floors', async (req: Request, res: Response) => {
+  const code = req.params.code.toUpperCase()
+  const block = await prisma.block.findUnique({
+    where: { id: code },
+    include: {
+      floors: {
+        orderBy: { number: 'asc' }
+      }
+    }
+  })
+
+  if (!block) {
+    res.status(404).json({
+      error: {
+        code: 'NOT_FOUND',
+        message: `Block "${code}" not found.`
+      }
+    })
+    return
+  }
+
+  res.json({ blockId: block.id, blockName: block.name, floors: block.floors })
+})
+
+// GET /api/campus/floors/:floorId - rooms on floor with real-time status
+router.get('/campus/floors/:floorId', async (req: Request, res: Response) => {
+  const { floorId } = req.params
+  const floor = await prisma.floor.findUnique({
+    where: { id: floorId },
+    include: {
+      rooms: true
+    }
+  })
+
+  if (!floor) {
+    res.status(404).json({
+      error: {
+        code: 'NOT_FOUND',
+        message: `Floor "${floorId}" not found.`
+      }
+    })
+    return
+  }
+
+  const now = new Date()
+  const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+  const queryDay = days[now.getDay()]
+  const queryTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+
+  const roomIds = floor.rooms.map(r => r.id)
+
+  const activeEntries = await prisma.entry.findMany({
+    where: {
+      roomId: { in: roomIds },
+      day: queryDay,
+      is_live: true,
+      startTime: { lte: queryTime },
+      endTime: { gt: queryTime }
+    }
+  })
+
+  const occupiedSet = new Set(activeEntries.map(e => e.roomId))
+
+  const roomsWithStatus = floor.rooms.map(room => ({
+    ...room,
+    status: occupiedSet.has(room.id) ? 'OCCUPIED' : 'FREE'
+  }))
+
+  res.json({
+    floor: {
+      id: floor.id,
+      blockId: floor.blockId,
+      number: floor.number,
+      label: floor.label,
+      rooms: roomsWithStatus
+    }
+  })
+})
+
+// GET /api/availability/now?at=
+router.get('/availability/now', async (req: Request, res: Response) => {
+  const { at, day, time } = req.query as { at?: string; day?: string; time?: string }
+
+  const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+  let queryDay: string
+  let queryTime: string
+
+  if (at) {
+    const d = new Date(at)
+    queryDay = isNaN(d.getTime()) ? days[new Date().getDay()] : days[d.getDay()]
+    queryTime = isNaN(d.getTime())
+      ? `${String(new Date().getHours()).padStart(2, '0')}:${String(new Date().getMinutes()).padStart(2, '0')}`
+      : `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+  } else {
+    const now = new Date()
+    queryDay = (day ? day.toUpperCase() : days[now.getDay()])
+    queryTime = time || `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+  }
+
+  const liveEntries = await prisma.entry.findMany({
+    where: { day: queryDay, is_live: true },
+    select: { roomId: true, startTime: true, endTime: true, subject: true }
+  })
+
+  const disruptions = await prisma.disruption.findMany({
+    where: { affectedDay: queryDay, status: 'open' },
+    select: { roomId: true, startTime: true, endTime: true, type: true }
+  })
+
+  const rooms = await prisma.room.findMany({
+    select: {
+      id: true,
+      blockId: true,
+      floorId: true,
+      floor_num: true,
+      type: true,
+      capacity: true,
+      confidence: true,
+      is_mock: true
+    }
+  })
+
+  const disruptedRooms = new Set(
+    disruptions
+      .filter(d => d.roomId && d.startTime <= queryTime && d.endTime > queryTime)
+      .map(d => d.roomId!)
+  )
+
+  const occupiedRooms = new Map(
+    liveEntries
+      .filter(e => e.roomId && e.startTime <= queryTime && e.endTime > queryTime)
+      .map(e => [e.roomId!, e.subject])
+  )
+
+  const laterRooms = new Map(
+    liveEntries
+      .filter(e => e.roomId && e.startTime > queryTime)
+      .map(e => [e.roomId!, e.startTime])
+  )
+
+  const result = rooms.map(r => {
+    let status: 'FREE' | 'OCCUPIED' | 'LATER' | 'UNAVAILABLE' = 'FREE'
+    let detail: string | undefined
+
+    if (disruptedRooms.has(r.id)) {
+      status = 'UNAVAILABLE'
+      detail = 'Room unavailable (active disruption)'
+    } else if (occupiedRooms.has(r.id)) {
+      status = 'OCCUPIED'
+      detail = occupiedRooms.get(r.id) || 'Class in session'
+    } else if (laterRooms.has(r.id)) {
+      status = 'LATER'
+      detail = `Free until ${laterRooms.get(r.id)}`
+    } else {
+      status = 'FREE'
+      detail = 'Free all day'
+    }
+
+    return {
+      ...r,
+      status,
+      detail
+    }
+  })
+
+  res.json({ day: queryDay, time: queryTime, rooms: result })
+})
+
+// GET /api/availability/search?day=&from=&to=&block=&type=
+router.get('/availability/search', async (req: Request, res: Response) => {
+  const { day, from, to, block, type } = req.query as {
+    day?: string
+    from?: string
+    to?: string
+    block?: string
+    type?: string
+  }
+
+  if (!day || !from || !to) {
+    res.status(400).json({
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'Query parameters "day", "from", and "to" are required.'
+      }
+    })
+    return
+  }
+
+  const queryDay = day.toUpperCase()
+
+  const busyEntries = await prisma.entry.findMany({
+    where: {
+      day: queryDay,
+      is_live: true,
+      roomId: { not: null },
+      NOT: [
+        { endTime: { lte: from } },
+        { startTime: { gte: to } }
+      ]
+    },
+    select: { roomId: true }
+  })
+
+  const disruptedRooms = await prisma.disruption.findMany({
+    where: {
+      affectedDay: queryDay,
+      status: 'open',
+      roomId: { not: null },
+      NOT: [
+        { endTime: { lte: from } },
+        { startTime: { gte: to } }
+      ]
+    },
+    select: { roomId: true }
+  })
+
+  const busyIds = new Set([
+    ...busyEntries.map(e => e.roomId!),
+    ...disruptedRooms.map(d => d.roomId!)
+  ])
+
+  const freeRooms = await prisma.room.findMany({
+    where: {
+      id: { notIn: Array.from(busyIds) },
+      ...(block ? { blockId: block.toUpperCase() } : {}),
+      ...(type ? { type: { contains: type } } : {})
+    },
+    include: { floor: true },
+    orderBy: { id: 'asc' }
+  })
+
+  res.json({ day: queryDay, from, to, freeRooms })
+})
+
+// GET /api/rooms/:id/timetable?day=
+router.get('/rooms/:id/timetable', async (req: Request, res: Response) => {
+  const { id } = req.params
+  const { day } = req.query as { day?: string }
+
+  const room = await prisma.room.findUnique({
+    where: { id },
+    include: { floor: true }
+  })
+
+  if (!room) {
+    res.status(404).json({
+      error: {
+        code: 'NOT_FOUND',
+        message: `Room "${id}" not found.`
+      }
+    })
+    return
+  }
+
+  const entries = await prisma.entry.findMany({
+    where: {
+      roomId: id,
+      is_live: true,
+      ...(day ? { day: day.toUpperCase() } : {})
+    },
+    include: {
+      group: true,
+      faculty: { select: { id: true, name: true, code: true } } // no contact details
+    },
+    orderBy: [{ day: 'asc' }, { startTime: 'asc' }]
+  })
+
+  res.json({ room, entries })
+})
+
+// GET /api/faculty/:id/timetable?day=
+router.get('/faculty/:id/timetable', async (req: Request, res: Response) => {
+  const { id } = req.params
+  const { day } = req.query as { day?: string }
+
+  const faculty = await prisma.faculty.findUnique({
+    where: { id },
+    select: { id: true, name: true, code: true, departmentId: true, department: true } // Zero contact fields!
+  })
+
+  if (!faculty) {
+    res.status(404).json({
+      error: {
+        code: 'NOT_FOUND',
+        message: `Faculty record "${id}" not found.`
+      }
+    })
+    return
+  }
+
+  const entries = await prisma.entry.findMany({
+    where: {
+      facultyId: id,
+      is_live: true,
+      ...(day ? { day: day.toUpperCase() } : {})
+    },
+    include: {
+      room: { select: { id: true, blockId: true, floorId: true } },
+      group: true
+    },
+    orderBy: [{ day: 'asc' }, { startTime: 'asc' }]
+  })
+
+  res.json({ faculty, entries })
+})
+
+// GET /api/groups?year=&department=&section=
+router.get('/groups', async (req: Request, res: Response) => {
+  const { year, department, section } = req.query as {
+    year?: string
+    department?: string
+    section?: string
+  }
+
+  const groups = await prisma.group.findMany({
+    where: {
+      ...(year ? { year: parseInt(year, 10) } : {}),
+      ...(section ? { section } : {}),
+      ...(department
+        ? {
+            department: {
+              OR: [{ code: department.toUpperCase() }, { name: { contains: department } }]
+            }
+          }
+        : {})
+    },
+    include: { department: true },
+    orderBy: { name: 'asc' }
+  })
+
+  res.json({ groups })
+})
+
+// GET /api/groups/:id/timetable
+router.get('/groups/:id/timetable', async (req: Request, res: Response) => {
+  const idOrName = decodeURIComponent(req.params.id)
+
+  const group = await prisma.group.findFirst({
+    where: {
+      OR: [{ id: idOrName }, { name: idOrName }]
+    },
+    include: { department: true }
+  })
+
+  if (!group) {
+    res.status(404).json({
+      error: {
+        code: 'NOT_FOUND',
+        message: `Group "${idOrName}" not found.`
+      }
+    })
+    return
+  }
+
+  const entries = await prisma.entry.findMany({
+    where: { groupId: group.id, is_live: true },
+    include: {
+      room: { select: { id: true, blockId: true, floorId: true } },
+      faculty: { select: { id: true, name: true, code: true } } // no phone or email
+    },
+    orderBy: [{ day: 'asc' }, { startTime: 'asc' }]
+  })
+
+  res.json({ group, entries })
+})
+
+export default router

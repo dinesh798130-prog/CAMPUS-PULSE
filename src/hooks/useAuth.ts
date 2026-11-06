@@ -6,6 +6,9 @@ export function useAuth() {
   const [session, setSession] = useState<UserSession | null>(authService.getCurrentSession());
 
   useEffect(() => {
+    // Check server session on mount
+    authService.checkServerSession().then(s => setSession(s));
+
     const handleAuthChange = () => {
       setSession(authService.getCurrentSession());
     };
@@ -15,20 +18,24 @@ export function useAuth() {
     };
   }, []);
 
-  const login = (email: string, role: Role) => {
-    return authService.login(email, role);
+  const login = async (email: string, password: string) => {
+    const s = await authService.login(email, password);
+    setSession(s);
+    window.dispatchEvent(new Event('campus_pulse_auth_change'));
+    return s;
   };
 
-  const logout = () => {
-    authService.logout();
+  const logout = async () => {
+    await authService.logout();
+    setSession(null);
+    window.dispatchEvent(new Event('campus_pulse_auth_change'));
   };
 
   return {
     session,
     isAuthenticated: !!session,
-    role: session?.role || 'public',
+    role: (session?.role || 'public') as Role | 'public',
     login,
     logout
   };
 }
-
