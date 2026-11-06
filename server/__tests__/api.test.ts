@@ -206,7 +206,7 @@ describe('CampusPulse Backend API Integration Tests', () => {
         .send({ question: 'Where is section II AIML-J on Monday?' })
 
       expect(res.status).toBe(200)
-      expect(['answered', 'needs_detail', 'no_data']).toContain(res.body.status)
+      expect(['answered', 'clarify', 'no_data']).toContain(res.body.status)
       expect(res.body.answer).toBeDefined()
       expect(Array.isArray(res.body.citations)).toBe(true)
     })

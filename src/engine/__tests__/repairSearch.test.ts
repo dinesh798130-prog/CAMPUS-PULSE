@@ -13,7 +13,8 @@ describe('Repair Search and Constraint Verification Engine (Section 7.2 & 7.3)',
     day: 1, // Monday
     start: '08:15',
     end: '09:05',
-    subject: 'Data Structures'
+    subject: 'Data Structures',
+    entryType: 'class'
   };
 
   const currentRoom: CandidateRoom = {
@@ -21,7 +22,8 @@ describe('Repair Search and Constraint Verification Engine (Section 7.2 & 7.3)',
     code: 'N-604',
     blockCode: 'N',
     floor: 6,
-    capacity: 60
+    capacity: 60,
+    type: 'Classroom'
   };
 
   const candidateA: CandidateRoom = {
@@ -29,7 +31,8 @@ describe('Repair Search and Constraint Verification Engine (Section 7.2 & 7.3)',
     code: 'N-605',
     blockCode: 'N',
     floor: 6,
-    capacity: 65
+    capacity: 65,
+    type: 'Classroom'
   };
 
   const candidateB: CandidateRoom = {
@@ -37,7 +40,8 @@ describe('Repair Search and Constraint Verification Engine (Section 7.2 & 7.3)',
     code: 'VBFF-1',
     blockCode: 'A',
     floor: 1,
-    capacity: 80
+    capacity: 80,
+    type: 'Classroom'
   };
 
   it('passes hard constraints when room, faculty, and group are free', () => {
@@ -53,6 +57,34 @@ describe('Repair Search and Constraint Verification Engine (Section 7.2 & 7.3)',
 
     expect(res.passed).toBe(true);
     expect(res.checks.every(c => c.status === 'passed')).toBe(true);
+  });
+
+  it('rejects a classroom for a lab session and accepts a laboratory', () => {
+    const labEntry: ScheduledEntry = { ...affectedEntry, entryType: 'lab' };
+
+    const classroomResult = verifyHardConstraints({
+      candidateRoom: candidateA,
+      affectedEntry: labEntry,
+      groupSize: 50,
+      roomEntries: [],
+      roomDisruptions: [],
+      facultyEntries: [],
+      groupEntries: []
+    });
+    expect(classroomResult.passed).toBe(false);
+    expect(classroomResult.checks.find(c => c.name === 'room_type_match')?.status).toBe('failed');
+
+    const labResult = verifyHardConstraints({
+      candidateRoom: { ...candidateA, type: 'Laboratory' },
+      affectedEntry: labEntry,
+      groupSize: 50,
+      roomEntries: [],
+      roomDisruptions: [],
+      facultyEntries: [],
+      groupEntries: []
+    });
+    expect(labResult.checks.find(c => c.name === 'room_type_match')?.status).toBe('passed');
+    expect(labResult.passed).toBe(true);
   });
 
   it('fails hard constraint if candidate room is occupied', () => {

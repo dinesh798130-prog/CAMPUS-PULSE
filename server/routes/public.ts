@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express'
 import { prisma } from '../lib/prisma.js'
 import { campusNow } from '../lib/time.js'
+import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js'
+import { z } from 'zod'
 
 const router = Router()
 
@@ -520,23 +522,223 @@ router.get('/timetables', async (req: Request, res: Response) => {
     include: { room: true, faculty: true, group: true },
     orderBy: [{ day: 'asc' }, { startTime: 'asc' }]
   })
-  res.json(entries.map(e => ({
+  res.json(entries.map(toTimetableEntry))
+})
+
+/**
+ * Shapes an Entry row into the TimetableEntry the SPA expects. The frontend
+ * keys off `day` as a full name, `subjectId` as the subject text, and `isLab`.
+ */
+function toTimetableEntry(e: {
+  id: string
+  subject: string | null
+  day: string
+  startTime: string
+  endTime: string
+  entryType: string
+  is_live: boolean
+  facultyId: string | null
+  roomId: string | null
+  groupId: string | null
+  faculty?: { name: string; departmentId: string | null } | null
+  room?: { blockId: string; floorId: string | null } | null
+  group?: { name: string; year: number } | null
+}) {
+  const dayName =
+    e.day === 'MON' ? 'Monday' : e.day === 'TUE' ? 'Tuesday' : e.day === 'WED' ? 'Wednesday' :
+    e.day === 'THU' ? 'Thursday' : e.day === 'FRI' ? 'Friday' : e.day === 'SAT' ? 'Saturday' : 'Sunday'
+
+  return {
     id: e.id,
     academicYearId: 'ay-2026-27',
     semesterId: 'sem-even-2026',
     departmentId: e.faculty?.departmentId || 'dept-cse',
     yearOfStudy: e.group?.year || 2,
-    sectionId: e.group?.name || e.groupId,
-    subjectId: e.subject,
+    sectionId: e.group?.name || e.groupId || '',
+    subjectId: e.subject || '',
     facultyId: e.faculty?.name || e.facultyId || '',
     buildingId: e.room?.blockId || '',
     floorId: e.room?.floorId || '',
     roomId: e.roomId || '',
-    day: e.day === 'MON' ? 'Monday' : e.day === 'TUE' ? 'Tuesday' : e.day === 'WED' ? 'Wednesday' : e.day === 'THU' ? 'Thursday' : e.day === 'FRI' ? 'Friday' : e.day === 'SAT' ? 'Saturday' : 'Sunday',
+    day: dayName,
     startTime: e.startTime,
     endTime: e.endTime,
-    isLab: e.is_lab || false,
+    isLab: e.entryType === 'lab',
     status: e.is_live ? 'published' : 'draft'
+  }
+}
+
+const DAY_NUM_TO_CODE: Record<string, string> = {
+  Monday: 'MON', Tuesday: 'TUE', Wednesday: 'WED',
+  Thursday: 'THU', Friday: 'FRI', Saturday: 'SAT', Sunday: 'SUN',
+  MON: 'MON', TUE: 'TUE', WED: 'WED', THU: 'THU', FRI: 'FRI', SAT: 'SAT', SUN: 'SUN'
+}
+
+const TimetableWriteSchema = z.object({
+  sectionId: z.string().min(1),
+  subjectId: z.string().min(1),
+  day: z.string().min(1),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/),
+  endTime: z.string().regex(/^\d{2}:\d{2}$/),
+  roomId: z.string().optional().nullable(),
+  facultyId: z.string().optional().nullable(),
+  isLab: z.boolean().optional()
+})
+
+async function resolveGroupId(sectionId: string) {
+  const group = await prisma.group.findFirst({
+    where: { OR: [{ id: sectionId }, { name: sectionId }] },
+    select: { id: true }
+  })
+  return group?.id ?? null
+}
+
+async function resolveFacultyId(facultyRef: string | null | undefined) {
+  if (!facultyRef) return null
+  const faculty = await prisma.faculty.findFirst({
+    where: { OR: [{ id: facultyRef }, { name: facultyRef }, { code: facultyRef }] },
+    select: { id: true }
+  })
+  return faculty?.id ?? null
+}
+
+// POST /api/timetables - create a live entry (admin/faculty)
+router.post('/timetables', requireAuth, requireRole('admin', 'faculty'), async (req: AuthRequest, res: Response) => {
+  const parsed = TimetableWriteSchema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message || 'Invalid entry.' } })
+    return
+  }
+  const body = parsed.data
+  const day = DAY_NUM_TO_CODE[body.day]
+  if (!day) {
+    res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: `Unknown day "${body.day}".` } })
+    return
+  }
+
+  const entry = await prisma.entry.create({
+    data: {
+      groupId: await resolveGroupId(body.sectionId),
+      facultyId: await resolveFacultyId(body.facultyId),
+      roomId: body.roomId || null,
+      day,
+      startTime: body.startTime,
+      endTime: body.endTime,
+      subject: body.subjectId,
+      entryType: body.isLab ? 'lab' : 'class',
+      is_live: true
+    },
+    include: { room: true, faculty: true, group: true }
+  })
+
+  res.status(201).json(toTimetableEntry(entry))
+})
+
+// PUT /api/timetables/:id - update an entry (admin/faculty)
+router.put('/timetables/:id', requireAuth, requireRole('admin', 'faculty'), async (req: AuthRequest, res: Response) => {
+  const existing = await prisma.entry.findUnique({ where: { id: String(req.params.id) } })
+  if (!existing) {
+    res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Timetable entry not found.' } })
+    return
+  }
+
+  const parsed = TimetableWriteSchema.partial().safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message || 'Invalid entry.' } })
+    return
+  }
+  const body = parsed.data
+
+  const entry = await prisma.entry.update({
+    where: { id: String(req.params.id) },
+    data: {
+      ...(body.sectionId ? { groupId: await resolveGroupId(body.sectionId) } : {}),
+      ...(body.facultyId !== undefined ? { facultyId: await resolveFacultyId(body.facultyId) } : {}),
+      ...(body.roomId !== undefined ? { roomId: body.roomId || null } : {}),
+      ...(body.day ? { day: DAY_NUM_TO_CODE[body.day] || existing.day } : {}),
+      ...(body.startTime ? { startTime: body.startTime } : {}),
+      ...(body.endTime ? { endTime: body.endTime } : {}),
+      ...(body.subjectId ? { subject: body.subjectId } : {}),
+      ...(body.isLab !== undefined ? { entryType: body.isLab ? 'lab' : 'class' } : {})
+    },
+    include: { room: true, faculty: true, group: true }
+  })
+
+  res.json(toTimetableEntry(entry))
+})
+
+// DELETE /api/timetables/:id - remove an entry (admin/faculty)
+router.delete('/timetables/:id', requireAuth, requireRole('admin', 'faculty'), async (req: AuthRequest, res: Response) => {
+  const existing = await prisma.entry.findUnique({ where: { id: String(req.params.id) } })
+  if (!existing) {
+    res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Timetable entry not found.' } })
+    return
+  }
+  await prisma.entry.delete({ where: { id: String(req.params.id) } })
+  res.json({ success: true })
+})
+
+// GET /api/changes - timetable changes the faculty/admin dashboards show.
+// Derived from resolved disruptions and their approved proposals, which is what
+// the repair flow actually produces. Students see only their own group's.
+router.get('/changes', requireAuth, async (req: AuthRequest, res: Response) => {
+  const user = req.user!
+
+  const disruptions = await prisma.disruption.findMany({
+    where: user.role === 'student'
+      ? { entry: { group: { name: user.group ?? '__none__' } } }
+      : {},
+    include: {
+      entry: { include: { group: true } },
+      room: true,
+      proposals: { where: { status: 'approved' }, include: { room: true } }
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 100
+  })
+
+  const changes = disruptions.map(d => {
+    const proposal = d.proposals[0]
+    const changeType =
+      d.type === 'faculty_change' ? 'Faculty Reassigned'
+      : d.type === 'room_closure' ? 'Room Changed'
+      : 'Class Cancelled'
+
+    return {
+      id: d.id,
+      timetableEntryId: d.entryId || '',
+      changeType,
+      previousValue: d.room?.id || d.entry?.roomId || '',
+      updatedValue: proposal?.room?.id || '',
+      reason: d.reason || '',
+      updatedBy: d.createdBy || '',
+      updatedAt: d.createdAt.toISOString(),
+      effectiveDate: d.createdAt.toISOString().slice(0, 10),
+      affectedSectionId: d.entry?.group?.name || d.entry?.groupId || '',
+      affectedFacultyId: d.entry?.facultyId || ''
+    }
+  })
+
+  res.json(changes)
+})
+
+// GET /api/notifications - the signed-in user's notifications in the SPA shape.
+router.get('/notifications', requireAuth, async (req: AuthRequest, res: Response) => {
+  const rows = await prisma.notification.findMany({
+    where: { userId: req.user!.id },
+    orderBy: { createdAt: 'desc' },
+    take: 50
+  })
+
+  res.json(rows.map(n => ({
+    id: n.id,
+    title: n.title,
+    message: n.body,
+    type: n.type === 'change' ? 'class_change' : n.type === 'disruption' ? 'cancellation' : 'general',
+    targetRole: req.user!.role as 'admin' | 'faculty' | 'student',
+    targetUserId: n.userId,
+    createdAt: n.createdAt.toISOString(),
+    isRead: n.read
   })))
 })
 

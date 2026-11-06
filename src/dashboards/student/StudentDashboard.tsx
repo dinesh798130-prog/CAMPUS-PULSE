@@ -47,7 +47,7 @@ export const StudentDashboard: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [buildings, setBuildings] = useState<Building[]>([]);
 
-  const sectionId = session?.sectionId || 'sec-cse-3a';
+  const sectionId = session?.sectionId || session?.group || 'sec-cse-3a';
 
   const loadData = useCallback(async () => {
     setIsLoading(true);

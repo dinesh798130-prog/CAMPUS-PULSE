@@ -235,6 +235,8 @@ export interface UserSession {
   identifier: string; // Registration number or Faculty ID
   departmentId?: string;
   sectionId?: string;
+  group?: string | null;
+  facultyId?: string | null;
   avatarUrl?: string;
   token?: string;
 }

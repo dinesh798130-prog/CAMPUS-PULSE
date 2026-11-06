@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js'
 import { prisma } from '../lib/prisma.js'
+import { Prisma } from '@prisma/client'
 import { log } from '../lib/logger.js'
 import multer from 'multer'
 import fs from 'fs'
@@ -844,109 +845,155 @@ router.get('/conflicts', async (_req: Request, res: Response) => {
 })
 
 // --- CRUD Endpoints for Academic Entities ---
+//
+// Body fields are whitelisted per model. Passing req.body straight into Prisma
+// would let an admin set relation ids, or trip a 500 on an unknown key.
+
+function pickFields(body: Record<string, unknown>, fields: string[]) {
+  const data: Record<string, unknown> = {}
+  for (const field of fields) {
+    if (body[field] !== undefined) data[field] = body[field]
+  }
+  return data
+}
 
 // Rooms CRUD
+const ROOM_FIELDS = ['blockId', 'floorId', 'floor_num', 'type', 'capacity', 'confidence', 'is_mock']
+
 router.get('/rooms', async (_req: Request, res: Response) => {
   const rooms = await prisma.room.findMany({ include: { floor: true } })
   res.json({ rooms })
 })
 
 router.post('/rooms', async (req: AuthRequest, res: Response) => {
-  const room = await prisma.room.create({ data: req.body })
+  const data = pickFields(req.body, ['id', ...ROOM_FIELDS])
+  if (!data.id || !data.blockId) {
+    res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Room id and blockId are required.' } })
+    return
+  }
+  const room = await prisma.room.create({ data: data as Prisma.RoomUncheckedCreateInput })
   res.status(201).json({ room })
 })
 
 router.put('/rooms/:id', async (req: AuthRequest, res: Response) => {
-  const room = await prisma.room.update({ where: { id: req.params.id }, data: req.body })
+  const room = await prisma.room.update({ where: { id: String(req.params.id) }, data: pickFields(req.body, ROOM_FIELDS) })
   res.json({ room })
 })
 
 router.delete('/rooms/:id', async (req: AuthRequest, res: Response) => {
-  await prisma.room.delete({ where: { id: req.params.id } })
+  await prisma.room.delete({ where: { id: String(req.params.id) } })
   res.json({ ok: true })
 })
 
 // Faculty CRUD
+const FACULTY_FIELDS = ['code', 'name', 'departmentId', 'is_mock']
+
 router.get('/faculty', async (_req: Request, res: Response) => {
   const faculty = await prisma.faculty.findMany({ include: { department: true } })
   res.json({ faculty })
 })
 
 router.post('/faculty', async (req: AuthRequest, res: Response) => {
-  const faculty = await prisma.faculty.create({ data: req.body })
+  const data = pickFields(req.body, FACULTY_FIELDS)
+  if (!data.code || !data.name) {
+    res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Faculty code and name are required.' } })
+    return
+  }
+  const faculty = await prisma.faculty.create({ data: data as { code: string; name: string } })
   res.status(201).json({ faculty })
 })
 
 router.put('/faculty/:id', async (req: AuthRequest, res: Response) => {
-  const faculty = await prisma.faculty.update({ where: { id: req.params.id }, data: req.body })
+  const faculty = await prisma.faculty.update({ where: { id: String(req.params.id) }, data: pickFields(req.body, FACULTY_FIELDS) })
   res.json({ faculty })
 })
 
 router.delete('/faculty/:id', async (req: AuthRequest, res: Response) => {
-  await prisma.faculty.delete({ where: { id: req.params.id } })
+  await prisma.faculty.delete({ where: { id: String(req.params.id) } })
   res.json({ ok: true })
 })
 
 // Groups CRUD
+const GROUP_FIELDS = ['name', 'year', 'departmentId', 'section', 'size']
+
 router.get('/groups-crud', async (_req: Request, res: Response) => {
   const groups = await prisma.group.findMany({ include: { department: true } })
   res.json({ groups })
 })
 
 router.post('/groups-crud', async (req: AuthRequest, res: Response) => {
-  const group = await prisma.group.create({ data: req.body })
+  const data = pickFields(req.body, GROUP_FIELDS)
+  if (!data.name || data.year === undefined || !data.departmentId || !data.section) {
+    res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Group name, year, departmentId and section are required.' } })
+    return
+  }
+  const group = await prisma.group.create({ data: data as { name: string; year: number; departmentId: string; section: string } })
   res.status(201).json({ group })
 })
 
 router.put('/groups-crud/:id', async (req: AuthRequest, res: Response) => {
-  const group = await prisma.group.update({ where: { id: req.params.id }, data: req.body })
+  const group = await prisma.group.update({ where: { id: String(req.params.id) }, data: pickFields(req.body, GROUP_FIELDS) })
   res.json({ group })
 })
 
 router.delete('/groups-crud/:id', async (req: AuthRequest, res: Response) => {
-  await prisma.group.delete({ where: { id: req.params.id } })
+  await prisma.group.delete({ where: { id: String(req.params.id) } })
   res.json({ ok: true })
 })
 
 // Departments CRUD
+const DEPARTMENT_FIELDS = ['code', 'name']
+
 router.get('/departments', async (_req: Request, res: Response) => {
   const departments = await prisma.department.findMany()
   res.json({ departments })
 })
 
 router.post('/departments', async (req: AuthRequest, res: Response) => {
-  const department = await prisma.department.create({ data: req.body })
+  const data = pickFields(req.body, DEPARTMENT_FIELDS)
+  if (!data.code || !data.name) {
+    res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Department code and name are required.' } })
+    return
+  }
+  const department = await prisma.department.create({ data: data as { code: string; name: string } })
   res.status(201).json({ department })
 })
 
 router.put('/departments/:id', async (req: AuthRequest, res: Response) => {
-  const department = await prisma.department.update({ where: { id: req.params.id }, data: req.body })
+  const department = await prisma.department.update({ where: { id: String(req.params.id) }, data: pickFields(req.body, DEPARTMENT_FIELDS) })
   res.json({ department })
 })
 
 router.delete('/departments/:id', async (req: AuthRequest, res: Response) => {
-  await prisma.department.delete({ where: { id: req.params.id } })
+  await prisma.department.delete({ where: { id: String(req.params.id) } })
   res.json({ ok: true })
 })
 
 // Blocks CRUD
+const BLOCK_FIELDS = ['name']
+
 router.get('/blocks-crud', async (_req: Request, res: Response) => {
   const blocks = await prisma.block.findMany({ include: { floors: true } })
   res.json({ blocks })
 })
 
 router.post('/blocks-crud', async (req: AuthRequest, res: Response) => {
-  const block = await prisma.block.create({ data: req.body })
+  const data = pickFields(req.body, ['id', ...BLOCK_FIELDS])
+  if (!data.id || !data.name) {
+    res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Block id and name are required.' } })
+    return
+  }
+  const block = await prisma.block.create({ data: data as { id: string; name: string } })
   res.status(201).json({ block })
 })
 
 router.put('/blocks-crud/:id', async (req: AuthRequest, res: Response) => {
-  const block = await prisma.block.update({ where: { id: req.params.id }, data: req.body })
+  const block = await prisma.block.update({ where: { id: String(req.params.id) }, data: pickFields(req.body, BLOCK_FIELDS) })
   res.json({ block })
 })
 
 router.delete('/blocks-crud/:id', async (req: AuthRequest, res: Response) => {
-  await prisma.block.delete({ where: { id: req.params.id } })
+  await prisma.block.delete({ where: { id: String(req.params.id) } })
   res.json({ ok: true })
 })
 
