@@ -138,7 +138,7 @@ export const WeeklyTimetableGrid: React.FC<WeeklyTimetableGridProps> = ({
                         >
                           <div className="flex items-center justify-between gap-1 mb-1">
                             <span className="font-mono font-bold text-[10px] text-slate-800 bg-white/80 px-1.5 py-0.5 rounded border border-slate-200/60">
-                              {subj?.code || 'SUBJ'}
+                              {subj?.code || matchingEntry.subjectId || 'SUBJ'}
                             </span>
                             {matchingEntry.isLab ? (
                               <span className="text-[9px] font-bold text-teal-800 bg-teal-100 px-1.5 rounded">
@@ -147,20 +147,20 @@ export const WeeklyTimetableGrid: React.FC<WeeklyTimetableGridProps> = ({
                             ) : null}
                           </div>
 
-                          <p className="font-bold text-slate-900 text-[11px] leading-tight line-clamp-1" title={subj?.name}>
-                            {subj?.name}
+                          <p className="font-bold text-slate-900 text-[11px] leading-tight line-clamp-1" title={subj?.name || matchingEntry.subjectId}>
+                            {subj?.name || matchingEntry.subjectId}
                           </p>
 
                           <div className="mt-1.5 space-y-0.5 text-[10px] text-slate-600">
                             <div className="flex items-center gap-1 truncate text-slate-700 font-medium">
                               <User className="w-3 h-3 text-slate-400 shrink-0" />
-                              <span className="truncate">{fac?.name || 'Faculty'}</span>
+                              <span className="truncate">{fac?.name || matchingEntry.facultyId || 'Faculty'}</span>
                             </div>
 
                             <div className="flex items-center gap-1 font-mono font-semibold text-blue-700">
                               <MapPin className="w-3 h-3 text-blue-500 shrink-0" />
-                              <span>{room?.roomNumber || 'Room'}</span>
-                              <span className="text-slate-400 text-[9px]">({bldg?.originalCode})</span>
+                              <span>{room?.roomNumber || matchingEntry.roomId || 'Room'}</span>
+                              <span className="text-slate-400 text-[9px]">({bldg?.originalCode || matchingEntry.buildingId})</span>
                             </div>
 
                             {showSection && sec && (

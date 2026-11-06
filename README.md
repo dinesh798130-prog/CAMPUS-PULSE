@@ -28,7 +28,7 @@ Campus Pulse operates a decoupled, cloud-native architecture:
 ┌─────────────────────────────────────────┐
 │       Backend Service: Express 5        │
 │      (Hosted on Render Cloud)           │
-│   https://campuspulse-api-788f.onrender.com │
+│   https://campuspulse-backend-trww.onrender.com │
 └───────────────────┬─────────────────────┘
                     │ Prisma ORM 6.4
                     ▼
@@ -190,6 +190,6 @@ npx cap open android
 ## 🌐 Live Deployments
 
 - **Frontend Application (Vercel):** [https://campus-pulse-two-gilt.vercel.app](https://campus-pulse-two-gilt.vercel.app)
-- **Backend API Server (Render):** [https://campuspulse-api-788f.onrender.com](https://campuspulse-api-788f.onrender.com)
-- **API Health Check:** [https://campuspulse-api-788f.onrender.com/api/health](https://campuspulse-api-788f.onrender.com/api/health)
-- **Interactive Swagger Documentation:** [https://campuspulse-api-788f.onrender.com/api/docs](https://campuspulse-api-788f.onrender.com/api/docs)
+- **Backend API Server (Render):** [https://campuspulse-backend-trww.onrender.com](https://campuspulse-backend-trww.onrender.com)
+- **API Health Check:** [https://campuspulse-backend-trww.onrender.com/api/health](https://campuspulse-backend-trww.onrender.com/api/health)
+- **Interactive Swagger Documentation:** [https://campuspulse-backend-trww.onrender.com/api/docs](https://campuspulse-backend-trww.onrender.com/api/docs)
