@@ -160,6 +160,8 @@ export interface TimetableEntry {
   endTime: string; // "HH:MM" e.g. "09:30"
   isLab: boolean;
   status: 'published' | 'draft' | 'cancelled';
+  /** True when the row is synthetic placeholder data, not parsed from a department sheet. */
+  is_mock?: boolean;
   version?: number;
 }
 

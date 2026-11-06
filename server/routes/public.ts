@@ -281,7 +281,12 @@ router.get('/availability/search', async (req: Request, res: Response) => {
     orderBy: { id: 'asc' }
   })
 
-  res.json({ day: queryDay, from, to, freeRooms })
+  res.json({
+    day: queryDay,
+    from,
+    to,
+    freeRooms: freeRooms.map(r => ({ ...r, type: normalizeRoomType(r.type) }))
+  })
 })
 
 // GET /api/rooms/:id/timetable?day=
@@ -485,6 +490,20 @@ router.get('/floors', async (req: Request, res: Response) => {
   })))
 })
 
+// Room rows store human labels ("Classroom" | "Laboratory" | "Seminar"); the SPA
+// expects the lowercase RoomType union. Normalise rather than test for a single
+// literal, otherwise every room collapses to 'classroom'.
+function normalizeRoomType(raw: string | null | undefined): string {
+  const t = (raw || '').toLowerCase()
+  if (t.startsWith('lab')) return 'laboratory'
+  if (t.startsWith('seminar')) return 'seminar_hall'
+  if (t.startsWith('class')) return 'classroom'
+  if (t.startsWith('office')) return 'office'
+  if (t.startsWith('wash') || t.startsWith('rest')) return 'washroom'
+  if (t.startsWith('facil')) return 'facility'
+  return 'classroom'
+}
+
 // GET /api/rooms
 router.get('/rooms', async (req: Request, res: Response) => {
   const { buildingId, floorId, type } = req.query as { buildingId?: string; floorId?: string; type?: string }
@@ -502,7 +521,7 @@ router.get('/rooms', async (req: Request, res: Response) => {
     name: `Room ${r.id}`,
     buildingId: r.blockId,
     floorId: r.floorId || '',
-    type: r.type === 'lab' ? 'laboratory' : 'classroom',
+    type: normalizeRoomType(r.type),
     capacity: r.capacity || 60,
     isSchedulable: true
   })))
@@ -537,6 +556,7 @@ function toTimetableEntry(e: {
   endTime: string
   entryType: string
   is_live: boolean
+  is_mock: boolean
   facultyId: string | null
   roomId: string | null
   groupId: string | null
@@ -564,7 +584,10 @@ function toTimetableEntry(e: {
     startTime: e.startTime,
     endTime: e.endTime,
     isLab: e.entryType === 'lab',
-    status: e.is_live ? 'published' : 'draft'
+    status: e.is_live ? 'published' : 'draft',
+    // Synthetic rows are labelled so the UI can mark them as not-yet-parsed
+    // rather than presenting them as department-supplied data.
+    is_mock: e.is_mock
   }
 }
 
