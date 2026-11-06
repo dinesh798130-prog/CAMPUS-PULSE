@@ -221,7 +221,7 @@ router.post('/timetable/import/:id/commit', async (req: AuthRequest, res: Respon
   for (const f of uploadedFiles) {
     try {
       fs.unlinkSync(`${uploadDir}/${f}`)
-    } catch {}
+    } catch { }
   }
 
   await prisma.auditLog.create({
@@ -623,13 +623,13 @@ router.post('/proposals/:id/approve', async (req: AuthRequest, res: Response) =>
 
     const candidateRoom: CandidateRoom | null = room
       ? {
-          id: room.id,
-          code: room.id,
-          blockCode: room.blockId,
-          floor: room.floor_num ?? 1,
-          type: room.type,
-          capacity: room.capacity
-        }
+        id: room.id,
+        code: room.id,
+        blockCode: room.blockId,
+        floor: room.floor_num ?? 1,
+        type: room.type,
+        capacity: room.capacity
+      }
       : null
 
     if (!candidateRoom) {
@@ -998,3 +998,6 @@ router.delete('/blocks-crud/:id', async (req: AuthRequest, res: Response) => {
 })
 
 export default router
+
+
+

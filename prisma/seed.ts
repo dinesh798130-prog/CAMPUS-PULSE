@@ -1,6 +1,12 @@
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 import dotenv from 'dotenv'
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 dotenv.config()
 const prisma = new PrismaClient({
@@ -358,6 +364,93 @@ async function main() {
     })
   } else {
     console.log("- Skipping timetable entries re-insert: entries already exist.")
+  }
+
+  // 11. Ingest Full University Department Timetables (ECE, CSE 3rd Year, SASH, Bioinformatics)
+  const compiledPath = path.join(__dirname, '../server/data/all_compiled_timetables.json')
+  if (fs.existsSync(compiledPath)) {
+    console.log("Seeding full university timetables from compiled dataset...")
+    const rawCompiled = fs.readFileSync(compiledPath, 'utf-8')
+    const compiledData = JSON.parse(rawCompiled)
+
+    // 11.1 Upsert Departments
+    const deptMap = new Map<string, string>()
+    deptMap.set('ACSE', acse.id)
+    for (const d of compiledData.departments) {
+      const rec = await prisma.department.upsert({
+        where: { code: d.code },
+        update: { name: d.name },
+        create: { code: d.code, name: d.name }
+      })
+      deptMap.set(d.code, rec.id)
+    }
+
+    // 11.2 Upsert Rooms from compiledData
+    for (const rawRoom of compiledData.rooms) {
+      if (!rawRoom || rawRoom === 'MOBILE') continue
+      const rId = rawRoom.trim().toUpperCase()
+      let blk = 'A'
+      if (rId.startsWith('N-') || rId.startsWith('NB')) blk = 'N'
+      else if (rId.startsWith('H-') || rId.startsWith('VSF') || rId.startsWith('VTF') || rId.startsWith('VGF') || rId.startsWith('VFF')) blk = 'H'
+      else if (rId.startsWith('U-')) blk = 'U'
+      else if (rId.startsWith('P-') || rId.startsWith('VPTF') || rId.startsWith('VPSF')) blk = 'P'
+
+      await prisma.room.upsert({
+        where: { id: rId },
+        update: {},
+        create: {
+          id: rId,
+          blockId: blk,
+          confidence: 'confirmed',
+          type: rId.includes('LAB') ? 'Laboratory' : 'Classroom',
+          capacity: 60
+        }
+      })
+    }
+
+    // 11.3 Upsert Groups
+    const groupMap = new Map<string, string>()
+    groupMap.set('II AIML-J', group.id)
+    for (const g of compiledData.groups) {
+      const dId = deptMap.get(g.departmentCode) || acse.id
+      const rec = await prisma.group.upsert({
+        where: { name: g.name },
+        update: { year: g.year, section: g.section, departmentId: dId, size: 60 },
+        create: { name: g.name, year: g.year, section: g.section, departmentId: dId, size: 60 }
+      })
+      groupMap.set(g.name, rec.id)
+    }
+
+    // 11.4 Insert Entries for newly added groups
+    let newEntriesCount = 0
+    for (const entry of compiledData.entries) {
+      const gId = groupMap.get(entry.group)
+      if (!gId) continue
+
+      const count = await prisma.entry.count({
+        where: { groupId: gId, day: entry.day, startTime: entry.startTime }
+      })
+      if (count === 0) {
+        const rId = entry.room ? entry.room.trim().toUpperCase() : null
+        await prisma.entry.create({
+          data: {
+            sourceFileId: sourceFile.id,
+            groupId: gId,
+            roomId: rId && rId !== 'MOBILE' ? rId : null,
+            facultyId: null,
+            day: entry.day,
+            startTime: entry.startTime,
+            endTime: entry.endTime,
+            subject: entry.subject,
+            entryType: entry.entryType || 'class',
+            is_mock: false,
+            is_live: true
+          }
+        })
+        newEntriesCount++
+      }
+    }
+    console.log(`- Ingested ${compiledData.groups.length} university groups and ${newEntriesCount} entries`)
   }
 
   console.log(`Database seeded successfully!`)
