@@ -11,7 +11,7 @@ export const FacultyAvailabilityPage: React.FC = () => {
   const [selectedDay, setSelectedDay] = useState<DayOfWeek>('Monday');
   const [simulatedTime, setSimulatedTime] = useState('10:00');
 
-  const facultyId = session?.id || 'fac-1';
+  const facultyId = session?.facultyId || session?.id || 'fac-1';
   const statusInfo = timetableService.getFacultyStatus(facultyId, selectedDay, simulatedTime);
   const schedule = timetableService.getFacultySchedule(facultyId, selectedDay);
 

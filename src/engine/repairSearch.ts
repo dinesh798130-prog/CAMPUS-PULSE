@@ -46,12 +46,13 @@ export interface RepairSearchResult {
 }
 
 /**
- * Evaluates the 5 hard constraints for a candidate room replacing affectedEntry:
+ * Evaluates the 6 hard constraints for a candidate room replacing affectedEntry:
  * 1. Room is free for the whole class slot, including a 5-minute buffer.
- * 2. Room is not disrupted or unavailable.
- * 3. Room capacity >= group size (unverified if capacity or group size unknown).
- * 4. Faculty is free for slot in candidate room.
- * 5. Group has no second class at that time.
+ * 2. Room type matches the session (lab for lab, classroom for lecture).
+ * 3. Room is not disrupted or unavailable.
+ * 4. Room capacity >= group size (unverified if capacity or group size unknown).
+ * 5. Faculty is free for slot in candidate room.
+ * 6. Group has no second class at that time.
  */
 export function verifyHardConstraints(params: {
   candidateRoom: CandidateRoom;
@@ -121,6 +122,27 @@ export function verifyHardConstraints(params: {
     });
   }
 
+  // Check 2: Room type matches the session (lab for lab, classroom for lecture)
+  const isLabSession = affectedEntry.entryType === 'lab';
+  if (!candidateRoom.type) {
+    checks.push({
+      name: 'room_type_match',
+      status: 'unverified',
+      description: 'Room type unknown: cannot confirm it matches the session'
+    });
+  } else {
+    const candidateType = candidateRoom.type.toLowerCase();
+    const candidateIsLab = candidateType.includes('lab');
+    const typeMatches = isLabSession ? candidateIsLab : !candidateIsLab;
+    checks.push({
+      name: 'room_type_match',
+      status: typeMatches ? 'passed' : 'failed',
+      description: typeMatches
+        ? `Room type (${candidateRoom.type}) matches the ${isLabSession ? 'lab' : 'lecture'} session`
+        : `Room type mismatch: ${candidateRoom.type} cannot host a ${isLabSession ? 'lab' : 'lecture'} session`
+    });
+  }
+
   // Check 3: Room capacity >= group size
   if (candidateRoom.capacity == null || groupSize == null) {
     checks.push({
@@ -142,7 +164,7 @@ export function verifyHardConstraints(params: {
     });
   }
 
-  // Check 4: Faculty member is free for the slot
+  // Check 5: Faculty member is free for the slot
   const otherFacultyConflict = facultyEntries.find(
     e =>
       e.id !== affectedEntry.id &&
@@ -163,7 +185,7 @@ export function verifyHardConstraints(params: {
     });
   }
 
-  // Check 5: No student group has a second class in that slot
+  // Check 6: No student group has a second class in that slot
   const groupConflict = groupEntries.find(
     e =>
       e.id !== affectedEntry.id &&

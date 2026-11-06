@@ -40,7 +40,7 @@ export const FacultyDashboard: React.FC = () => {
   const [, setBuildings] = useState<Building[]>([]);
   const [, setSections] = useState<Section[]>([]);
 
-  const facultyId = session?.id || 'fac-1';
+  const facultyId = session?.facultyId || session?.id || 'fac-1';
 
   const loadData = useCallback(async () => {
     setIsLoading(true);

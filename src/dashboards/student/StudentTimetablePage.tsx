@@ -12,7 +12,7 @@ export const StudentTimetablePage: React.FC = () => {
   const [viewMode, setViewMode] = useState<'weekly' | 'daily'>('weekly');
   const [activeDay, setActiveDay] = useState<DayOfWeek>('Monday');
 
-  const sectionId = session?.sectionId || 'sec-cse-3a';
+  const sectionId = session?.sectionId || session?.group || 'sec-cse-3a';
   const entries = timetableService.getStudentSchedule(sectionId);
 
   return (

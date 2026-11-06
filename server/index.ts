@@ -124,9 +124,12 @@ app.get('/health', sendHealth)
 
 // 5. Application Feature Routes
 app.use('/api/auth', authRoutes)
+// Mount the self-scoped faculty routes before the public router. The public
+// router owns GET /api/faculty/:id/timetable, which would otherwise capture
+// GET /api/faculty/me/timetable and answer 404 for faculty id "me".
+app.use('/api/faculty/me', facultyRoutes)
 app.use('/api', publicRoutes)
 app.use('/api/me', studentRoutes)
-app.use('/api/faculty/me', facultyRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/assistant', assistantRoutes)
 
