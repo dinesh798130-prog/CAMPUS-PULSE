@@ -2,13 +2,13 @@
 
 /**
  * Campus Pulse API & Backend Integration Configuration
- * Production Base URL: https://campuspulse-api-788f.onrender.com
+ * Production Base URL: https://campuspulse-backend-trww.onrender.com
  */
 
 const rawBaseUrl =
   (import.meta as any).env?.VITE_API_BASE ||
   (import.meta as any).env?.VITE_API_BASE_URL ||
-  'https://campuspulse-api-788f.onrender.com';
+  'https://campuspulse-backend-trww.onrender.com';
 
 export const API_CONFIG = {
   baseUrl: (typeof rawBaseUrl === 'string' ? rawBaseUrl : '').replace(/\/+$/, ''),
