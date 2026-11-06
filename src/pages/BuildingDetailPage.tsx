@@ -104,7 +104,7 @@ export const BuildingDetailPage: React.FC = () => {
           <p className="text-sm text-red-700">
             Could not fetch building layout from the production backend at{' '}
             <code className="font-mono bg-red-100 px-2 py-0.5 rounded text-xs">
-              https://campuspulse-api-788f.onrender.com
+              https://campuspulse-backend-trww.onrender.com
             </code>
           </p>
           <div className="bg-white/80 p-3 rounded-lg border border-red-200 font-mono text-xs text-red-900 break-all">
