@@ -556,6 +556,7 @@ function toTimetableEntry(e: {
   endTime: string
   entryType: string
   is_live: boolean
+  is_mock: boolean
   facultyId: string | null
   roomId: string | null
   groupId: string | null
@@ -583,7 +584,10 @@ function toTimetableEntry(e: {
     startTime: e.startTime,
     endTime: e.endTime,
     isLab: e.entryType === 'lab',
-    status: e.is_live ? 'published' : 'draft'
+    status: e.is_live ? 'published' : 'draft',
+    // Synthetic rows are labelled so the UI can mark them as not-yet-parsed
+    // rather than presenting them as department-supplied data.
+    is_mock: e.is_mock
   }
 }
 

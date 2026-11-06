@@ -103,11 +103,21 @@ router.post('/query', async (req: Request, res: Response) => {
     })
 
     if (!dbGroup) {
+      const loaded = await prisma.group.findMany({
+        where: { entries: { some: { is_live: true } } },
+        select: { name: true },
+        orderBy: { name: 'asc' }
+      })
+      const names = loaded.map(g => g.name)
       res.json({
         status: 'no_data',
-        answer: `Timetable data for "${targetGroup}" is not covered in the loaded department timetables (only ACSE / II AIML-J is currently imported).`,
+        answer: names.length
+          ? `Timetable data for "${targetGroup}" is not covered in the loaded department timetables. Currently loaded sections: ${names.join(', ')}.`
+          : `Timetable data for "${targetGroup}" is not covered in the loaded department timetables.`,
         citations: [],
-        clarify: ['Check spelling of group (e.g., II AIML-J)']
+        clarify: names.length
+          ? [`Check spelling of group (e.g., ${names[0]})`]
+          : ['Check spelling of group (e.g., II AIML-J)']
       })
       return
     }

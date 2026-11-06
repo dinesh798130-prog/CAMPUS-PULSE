@@ -365,6 +365,13 @@ async function main() {
   console.log(`- ${confirmedRooms.length} Confirmed/Inferred Rooms`)
   console.log(`- Demo Section: II AIML-J (${realAssignments.length + 2} real entries, is_mock: false)`)
   console.log(`- 3 Demo User accounts created`)
+
+  // Synthetic coverage for the sections whose sheets have not been supplied yet.
+  // Opt out with SEED_SYNTHETIC_SECTIONS=false.
+  if (process.env.SEED_SYNTHETIC_SECTIONS !== 'false') {
+    const { seedDemoSections } = await import('./seedDemoSections')
+    await seedDemoSections(prisma)
+  }
 }
 
 main()
